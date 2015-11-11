@@ -13,6 +13,8 @@ def main():
 	f.close()
 	f = open('rterms.txt', 'w')
 	f.close()
+	f = open('scores.txt', 'w')
+	f.close()
 	reviews = getReviews(fileArray)
 
 
@@ -34,12 +36,17 @@ def getReviews(fileArray):
 	for line in fileArray:
 		if ": " in line:
 			splitLine = line.split(": ",1)
+
 			if splitLine[0] == 'product/title':
 				newPTerms(splitLine[1],reviewNumber)
 			elif splitLine[0] == 'review/summary' or splitLine[0] == 'review/text':
 				newRTerms(splitLine[1],reviewNumber)
+			elif splitLine[0] == 'review/score':
+				newScore(splitLine[1],reviewNumber)
+
 			if splitLine[0] in k_requiresQuotes:
 				splitLine[1] = '"%s"' % splitLine[1]
+
 			if splitLine[0] == 'review/text':
 				review += ',' + splitLine[1]
 				review = str(reviewNumber) + review
@@ -64,11 +71,15 @@ def newPTerms(title,reviewNumber):
 			if word != '' and len(word) >= 3:
 				f.write(word.lower() + ',' + str(reviewNumber) + '\n')
 
-def newRTerms(title,reviewNumber):
+def newRTerms(review,reviewNumber):
 	with open('rterms.txt', 'a') as f:
-		wordList = re.split('\W+',title)
+		wordList = re.split('\W+',review)
 		for word in wordList:
 			if word != '' and len(word) >= 3:
 				f.write(word.lower() + ',' + str(reviewNumber) + '\n')
+
+def newScore(score,reviewNumber):
+	with open('scores.txt', 'a') as f:
+		f.write(score + ',' + str(reviewNumber) + '\n')
 
 main()
