@@ -7,17 +7,44 @@ def main():
 		print "No file specified."
 		return
 	fileArray = readFile(fileName)
-	reviews(fileArray)
+	reviews = getReviews(fileArray)
+
 
 def readFile(fileName):
 	with open(fileName, "r") as f:
+		fileArray = []
 		for line in f:
 			line = line.rstrip('\n')
 			line = line.replace('"','&quot;')
 			line = line.replace('\\','\\\\')
-			print line
+			fileArray.append(line)
+	return fileArray
 
-def reviews(fileArray):
-	pass
+def getReviews(fileArray):
+	k_requiresQuotes = ['product/title','review/profileName','review/summary','review/text']
+	reviewsArray = []
+	review = ""
+	reviewNumber = 1
+	for line in fileArray:
+		if ": " in line:
+			splitLine = line.split(": ",1)
+			if splitLine[0] in k_requiresQuotes:
+				splitLine[1] = '"%s"' % splitLine[1]
+			if splitLine[0] == 'review/text':
+				review += ',' + splitLine[1]
+				review = str(reviewNumber) + review
+				reviewsArray.append(review)
+				reviewNumber += 1
+				review = ""
+			else:
+				review += ',' + splitLine[1]
+		else:
+			continue
+	writeReviews(reviewsArray)
 
+def writeReviews(reviews):
+	f = open('reviews.txt', 'w')
+	for review in reviews:
+		f.write(review+'\n')
+	f.close()
 main()
