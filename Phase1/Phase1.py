@@ -7,33 +7,26 @@ def main():
 	except Exception, e:
 		print "No file specified."
 		return
-	fileArray = readFile(fileName)
 	# Creates Empty Files
+	f = open('reviews.txt', 'w')
+	f.close()
 	f = open('pterms.txt', 'w')
 	f.close()
 	f = open('rterms.txt', 'w')
 	f.close()
 	f = open('scores.txt', 'w')
 	f.close()
-	reviews = getReviews(fileArray)
+	getReviews(fileName)
 
-
-def readFile(fileName):
-	with open(fileName, "r") as f:
-		fileArray = []
-		for line in f:
-			line = line.rstrip('\n')
-			line = line.replace('"','&quot;')
-			line = line.replace('\\','\\\\')
-			fileArray.append(line)
-	return fileArray
-
-def getReviews(fileArray):
+def getReviews(fileName):
 	k_requiresQuotes = ['product/title','review/profileName','review/summary','review/text']
-	reviewsArray = []
 	review = ""
 	reviewNumber = 1
-	for line in fileArray:
+	f = open(fileName, "r")
+	for line in f:
+		line = line.rstrip('\n')
+		line = line.replace('"','&quot;')
+		line = line.replace('\\','\\\\')
 		if ": " in line:
 			splitLine = line.split(": ",1)
 
@@ -50,30 +43,29 @@ def getReviews(fileArray):
 			if splitLine[0] == 'review/text':
 				review += ',' + splitLine[1]
 				review = str(reviewNumber) + review
-				reviewsArray.append(review)
+				newReview(review)
 				reviewNumber += 1
 				review = ""
 			else:
 				review += ',' + splitLine[1]
 		else:
 			continue
-	writeReviews(reviewsArray)
+	f.close()
 
-def writeReviews(reviews):
-	with open('reviews.txt', 'w') as f:
-		for review in reviews:
-			f.write(review + '\n')
+def newReview(review):
+	with open('reviews.txt', 'a') as f:
+		f.write(review + '\n')
 
 def newPTerms(title,reviewNumber):
 	with open('pterms.txt', 'a') as f:
-		wordList = re.split('\W+',title)
+		wordList = re.split('\W',title)
 		for word in wordList:
 			if word != '' and len(word) >= 3:
 				f.write(word.lower() + ',' + str(reviewNumber) + '\n')
 
 def newRTerms(review,reviewNumber):
 	with open('rterms.txt', 'a') as f:
-		wordList = re.split('\W+',review)
+		wordList = re.split('\W',review)
 		for word in wordList:
 			if word != '' and len(word) >= 3:
 				f.write(word.lower() + ',' + str(reviewNumber) + '\n')
