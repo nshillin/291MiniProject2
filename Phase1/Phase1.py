@@ -6,13 +6,18 @@ def main():
 	except Exception, e:
 		print "No file specified."
 		return
-	reviews(fileName)
+	fileArray = readFile(fileName)
+	reviews(fileArray)
 
-
-def reviews(fileName):
+def readFile(fileName):
 	with open(fileName, "r") as f:
 		for line in f:
 			line = line.rstrip('\n')
+			line = line.replace('"','&quot;')
+			line = line.replace('\\','\\\\')
 			print line
+
+def reviews(fileArray):
+	pass
 
 main()
