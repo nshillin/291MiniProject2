@@ -8,6 +8,11 @@ def main():
 		print "No file specified."
 		return
 	fileArray = readFile(fileName)
+	# Creates Empty Files
+	f = open('pterms.txt', 'w')
+	f.close()
+	f = open('rterms.txt', 'w')
+	f.close()
 	reviews = getReviews(fileArray)
 
 
@@ -31,6 +36,8 @@ def getReviews(fileArray):
 			splitLine = line.split(": ",1)
 			if splitLine[0] == 'product/title':
 				newPTerms(splitLine[1],reviewNumber)
+			elif splitLine[0] == 'review/summary' or splitLine[0] == 'review/text':
+				newRTerms(splitLine[1],reviewNumber)
 			if splitLine[0] in k_requiresQuotes:
 				splitLine[1] = '"%s"' % splitLine[1]
 			if splitLine[0] == 'review/text':
@@ -51,15 +58,17 @@ def writeReviews(reviews):
 			f.write(review + '\n')
 
 def newPTerms(title,reviewNumber):
-	if reviewNumber == 1:
-		f = open('pterms.txt', 'w')
-	else:
-		f = open('pterms.txt', 'a')
+	with open('pterms.txt', 'a') as f:
+		wordList = re.split('\W+',title)
+		for word in wordList:
+			if word != '' and len(word) >= 3:
+				f.write(word.lower() + ',' + str(reviewNumber) + '\n')
 
-	wordList = re.split('\W+',title)
-	for word in wordList:
-		if word != '' and len(word) >= 3:
-			f.write(word.lower() + ',' + str(reviewNumber) + '\n')
-	f.close()
+def newRTerms(title,reviewNumber):
+	with open('rterms.txt', 'a') as f:
+		wordList = re.split('\W+',title)
+		for word in wordList:
+			if word != '' and len(word) >= 3:
+				f.write(word.lower() + ',' + str(reviewNumber) + '\n')
 
 main()
