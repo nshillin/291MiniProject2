@@ -1,4 +1,5 @@
 import sys
+import re
 
 def main():
 	try:
@@ -28,6 +29,8 @@ def getReviews(fileArray):
 	for line in fileArray:
 		if ": " in line:
 			splitLine = line.split(": ",1)
+			if splitLine[0] == 'product/title':
+				newPTerms(splitLine[1],reviewNumber)
 			if splitLine[0] in k_requiresQuotes:
 				splitLine[1] = '"%s"' % splitLine[1]
 			if splitLine[0] == 'review/text':
@@ -43,8 +46,20 @@ def getReviews(fileArray):
 	writeReviews(reviewsArray)
 
 def writeReviews(reviews):
-	f = open('reviews.txt', 'w')
-	for review in reviews:
-		f.write(review+'\n')
+	with open('reviews.txt', 'w') as f:
+		for review in reviews:
+			f.write(review + '\n')
+
+def newPTerms(title,reviewNumber):
+	if reviewNumber == 1:
+		f = open('pterms.txt', 'w')
+	else:
+		f = open('pterms.txt', 'a')
+
+	wordList = re.split('\W+',title)
+	for word in wordList:
+		if word != '' and len(word) >= 3:
+			f.write(word.lower() + ',' + str(reviewNumber) + '\n')
 	f.close()
+
 main()
