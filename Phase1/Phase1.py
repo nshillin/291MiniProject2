@@ -4,8 +4,8 @@ import re
 def main():
 	try:
 		fileName = str(sys.argv[1])
-	except Exception, e:
-		print "No file specified."
+	except Exception as e:
+		print ("No file specified.")
 		return
 	# Creates Empty Files
 	f = open('reviews.txt', 'w')
