@@ -15,12 +15,14 @@ def main():
 
 def queryParser(text):
     validQuery = False
+    
     if validQuery:
-        berkeleyHandler(query)
+        pass
     else:
         print('"'+text+'" is not a valid query')
 
 def reviewParser(review):
     parsedReview = {}
     for c in reviewsColumns:
-        parsedReview[c] = ""
+        reviewSegment = ""
+        parsedReview[c] = reviewSegment
