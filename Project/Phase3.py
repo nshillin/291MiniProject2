@@ -14,8 +14,10 @@ def main():
             queryParser(text)
 
 def queryParser(text):
-    validQuery = False
+    queryList = text.split()
     
+    validQuery = False
+
     if validQuery:
         pass
     else:
