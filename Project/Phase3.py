@@ -2,10 +2,6 @@
 from csv import reader
 
 reviewsColumns = ["productId","title","price","userId","profileName","helpfulness","score","time","summary","text"]
-#infile = ['A,B,C,"D12121",E,F,G,H,"I9,I8",J,K']
-
-#print reader(infile).next()
-#database = db.DB()
 
 def main():
     while True:
@@ -27,16 +23,27 @@ def parseQuery(text):
     else:
         print('"'+text+'" is not a valid query')
 
+
 def executeQuery():
     pass
+    #Return a list of reviews
 
+# Turns Reviews into Dictionary
 def parseReview(reviewNumber):
-    ####database = db.DB()
+    #####database = db.DB()
     #database.open("rw.idx")
     #review = database.get(reviewNumber).decode("utf-8")
+    #database.close()
     #reviewItems = reader(review).next()
     reviewItems = ["1","2","3","4","5","6","7","8","9","10"]
-    parsedReview = dict(zip(reviewsColumns, reviewItems))
-    print parsedReview
+    reviewDict = dict(zip(reviewsColumns, reviewItems))
+    return reviewDict
+
+def printReviews(reviews):
+    for review in reviews:
+        reviewDict = parseReview(review)
+        for i in reviewDict:
+            print i + ":" + reviewDict[i]
+        print ''
 
 main()
