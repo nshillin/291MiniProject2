@@ -4,60 +4,111 @@ from bsddb3 import db
 def main():
     filesList = []
     #print("I am totes working.")
-    try: 
-	fileName1 = str(sys.argv[1])
-	fileName2 = str(sys.argv[2])
-	fileName3 = str(sys.argv[3])
-	fileName4 = str(sys.argv[4])
-	filesList.append(fileName1)
-	print(fileName1 + " first file\n")
-	filesList.append(fileName2)
-	print(fileName2 + " second file\n")
-	filesList.append(fileName3)
-	print(fileName3 + " third file\n")
-	filesList.append(fileName4)
-	print(fileName4 + " fourth file\n")
-	for filename in filesList:
-	    print(filename)
-	    sortFile(filename)
-    except Exception as e:
-	print("Expected more files in input.")
-    
+    #try: 
+    fileName1 = str(sys.argv[1])
+    fileName2 = str(sys.argv[2])
+    fileName3 = str(sys.argv[3])
+    fileName4 = str(sys.argv[4])
+    filesList.append(fileName1)
+    print(fileName1 + " first file\n")
+    filesList.append(fileName2)
+    print(fileName2 + " second file\n")
+    filesList.append(fileName3)
+    print(fileName3 + " third file\n")
+    filesList.append(fileName4)
+    print(fileName4 + " fourth file\n")
+    for filename in filesList:
+	print(filename)
+	sortFile(filename)
+    #except Exception as e:
+        #print("Expected more files in input.")
+
+def sortLines(filename):
+    file = open(filename, "r").read()
+    lines = file.split("\n")
+    lines.sort()
+   # for line in lines:
+	#print("I am having difficulties reaching this point, durrr sort lines")
+	#print(line)
+    #file.close()
+    return "\n".join(lines)
 
 def sortFile(filename):
     #print("Thank goodness I made it!")
     btree = False
     #print(btree)
-    #print(filename + " current file name\n")
+    print(filename + " current file name\n")
     if filename != 'reviews.txt':
-        sort = subprocess.Popen(['sort', fileName, '| uniq -u'], stdout = subprocess.PIPE)
+	#sortedFile = open(filename, "w")
+        sort = sortLines(filename)
+        print(sort)
+	#sortedFile.write()
+	#sort = subprocess.Popen(['sort', fileName, '| uniq -u'], stdout = subprocess.PIPE)
+        print("I am having difficulties reaching this point, durrr")
         btree = True
-        sort.stdout = open(filename, "w")
+        for item in sort:
+	    print(item)
+        #sort.stdout = open(filename, "w")
         createDatabase(btree, filename)
     else:
         createDatabase(btree, filename)
 
 def createDatabase(btree, filename):
     if btree:
-        createbTreeDatabase(filename)
+        createBTreeDatabase(filename)
     else :
         createHashDatabase(filename)
 
 def createBTreeDatabase(filename):
+    if filename == "pterms.txt":
+	createIndex2(filename)
+    #elif filename == "rterms.txt":
+	#createIndex3(filename)
+    
+def createIndex2(filename):
     try:
-        database = db.DB()
-        database.open("test", None, db.DB_BTREE, db.DB_CREATE)
+	database = db.DB()
+	database.open("pt.idx", None, db.DB_BTREE, db.DB_CREATE)
     except:
-        print("Database wouldn't open.")
+	print("Database wouldn't open.")
     with open(filename, "r") as contents:
-#        file = contents.readline().replace('\n', '')
-        for line in contents:
-            print(line + 'Adding to database\n')
-            indexOfKey = line.find(",")
-            key = line[:indexOfKey+1]
-            value = line[indexOfKey+1:]
-            database.put(key, value)
-    iterateDatabaseForTesting(database)
+	#file = contents.readline().replace('\n', '')
+	entries = []
+	for line in contents.read():
+	    #print(line + ": line" )
+	    if line != "\n" and line != ",":
+		entries.append(line)
+	    elif line == "\n":
+		value = "".join(entries)
+		print("key :" + key + " value: " + value)
+		database.put(key, value)
+		entries = []
+	    elif line == ",":
+		key = "".join(entries)
+		entries = []
+	#iterateDatabaseForTesting(database, "pt.idx")    
+
+def createIndex3(filename):
+    try:
+	database = db.DB()
+	database.open("pt.idx", None, db.DB_BTREE, db.DB_CREATE)
+    except:
+	print("Database wouldn't open.")
+    with open(filename, "r") as contents:
+	#file = contents.readline().replace('\n', '')
+	entries = []
+	for line in contents.read():
+	    print(line + ": line" )
+	    if line != "\n" and line != ",":
+		entries.append(line)
+	    elif line == "\n":
+		value = "".join(entries)
+		database.put(key, value)
+		entries = []
+	    elif line == ",":
+		key = "".join(entries)
+		entries = []
+	iterateDatabaseForTesting(database, "pt.idx")    
 
 def createHashDatabase(filename):
     try:
@@ -73,7 +124,6 @@ def createHashDatabase(filename):
 	entries = []
         for line in file:
 	    if line == "\n":
-	       #print("Blank Line.")
 	       kv = 1
 	       value = "".join(entries)
 	       entries = []
@@ -99,38 +149,21 @@ def createHashDatabase(filename):
 	    	 value = "".join(entries)
 		 kv = 1
 		 recordID = recordID + 1
-		 #print(value +  " value.")
 		 entries = []
 	       	 database.put(key, value)
-	#database.put(recordID,key + ", "+ value)
-	#iterateDatabaseForTesting(database)
+	#iterateDatabaseForTesting(database, "rw.idx")
 	database.close()
-            #indexOfKey = line.find(",")
-            #indexOfDescription = line.find(","[indexOfKey + 1])
-	   # if line == """ and kv == 0:
-	    #     kv = kv + 1
-	    #elif kv == 1 and line != """:
-	     #    entries.append(line)
-	    #elif kv == 1 and line == ":
-             #  	 value = "".join(entries)
-	#	 entries = []
-	#	 kv = 0
-	 #   elif line == "," and kv == 0:
-	  #  	 kv = kv + 2
-           # elif kv == 2 and line != ","
-	    #	 entries.append(line)
-	    #elif kv == 2 and line == ","
-	    #	 key =
 
 
-def iterateDatabaseForTesting(database):
+def iterateDatabaseForTesting(database, databaseName):
     cur = database.cursor()
     iter = cur.first()
     while iter:
         print(iter)
         iter = cur.next()
     cur.close()
-
+    #database.remove(databaseName)
+    
 main()
 
             
