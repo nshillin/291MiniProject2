@@ -3,7 +3,7 @@ from bsddb3 import db
 
 def main():
     filesList = []
-    #print("I am totes working.")
+    print("I am totes working.")
     try: 
 	fileName1 = str(sys.argv[1])
 	fileName2 = str(sys.argv[2])
@@ -34,7 +34,7 @@ def sortLines(filename):
     return "\n".join(lines)
 
 def sortFile(filename):
-    #print("Thank goodness I made it!")
+    print("Thank goodness I made it!")
     btree = False
     #print(btree)
     #print(filename + " current file name\n")
@@ -136,7 +136,7 @@ def createIndex4(filename):
 		entries = []
 	#iterateDatabaseForTesting(database, "sc.idx")    
 
-def createHashDatabase(filename):
+'''def createHashDatabase(filename):
     try:
         database = db.DB()
         database.open("rw.idx", None, db.DB_HASH, db.DB_CREATE)
@@ -178,7 +178,31 @@ def createHashDatabase(filename):
 		 entries = []
 	       	 database.put(key, value)
 	#iterateDatabaseForTesting(database, "rw.idx")
-	database.close()
+	database.close()'''
+	
+def createHashDatabase(filename):
+    try:
+        database = db.DB()
+        database.open("rw.idx", None, db.DB_HASH, db.DB_CREATE)
+    except:
+        print("Database wouldn't open for rw.idx.")
+    with open(filename, "r") as contents:
+	file = contents.read()
+	entries = []
+	reviewID = 1
+	inValue = False;
+	for line in file:
+	    if line == "\n":
+		value = "".join(entries)
+		print(value)
+		database.put(str(reviewID),value)
+		reviewID += 1
+		inValue = False
+	    elif line == "," and not inValue:
+		inValue = True
+	    elif inValue:
+		entries.append(line)
+		
 
 
 def iterateDatabaseForTesting(database, databaseName):
