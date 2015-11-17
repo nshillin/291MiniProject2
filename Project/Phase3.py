@@ -21,8 +21,7 @@ def parseQuery(text):
             query = queryList[i] + queryList[i+1] + queryList[i+2]
             i+=2
         if ('<' in query) or ('>' in query):
-            # Do whatever should be done with this kind of query here
-            pass
+            compareQuery(query)
         i+=1
 
     validQuery = False
@@ -32,6 +31,15 @@ def parseQuery(text):
     else:
         print('"'+text+'" is not a valid query')
 
+## Start of query handlers
+# Query handlers should accept a command and
+# Return a list of review keys
+
+def compareQuery(query):
+    return reviewList
+
+
+## End of query handlers
 
 # Turns Reviews into Dictionary
 def parseReview(reviewNumber):
