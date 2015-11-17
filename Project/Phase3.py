@@ -1,5 +1,7 @@
 from bsddb3 import db
 
+reviewsColumns = ["productId","title","price","userId","profileName","helpfulness","score","time","summary","text"]
+
 database = db.DB()
 main()
 
@@ -9,17 +11,16 @@ def main():
         if text == "exit":
             return
         else:
-            queryParse(text)
+            queryParser(text)
 
-def queryParse(text):
-    query = ""
+def queryParser(text):
     validQuery = False
     if validQuery:
         berkeleyHandler(query)
     else:
         print('"'+text+'" is not a valid query')
 
-def berkeleyHandler(query):
-    database.open("")
-    cur = database.cursor()
-    database.close()
+def reviewParser(review):
+    parsedReview = {}
+    for c in reviewsColumns:
+        parsedReview[c] = ""
