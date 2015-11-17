@@ -66,11 +66,12 @@ def createBTreeDatabase(filename):
 	#createIndex3(filename)
     
 def createIndex2(filename):
-    try:
-	database = db.DB()
-	database.open("pt.idx", None, db.DB_BTREE, db.DB_CREATE)
-    except:
-	print("Database wouldn't open.")
+   # try:
+    database = db.DB()
+    database.set_flags(db.DB_DUP)
+    database.open("pt.idx", None, db.DB_BTREE, db.DB_CREATE)
+   # except:
+#	print("Database wouldn't open.")
     with open(filename, "r") as contents:
 	#file = contents.readline().replace('\n', '')
 	entries = []
@@ -86,11 +87,12 @@ def createIndex2(filename):
 	    elif line == ",":
 		key = "".join(entries)
 		entries = []
-	#iterateDatabaseForTesting(database, "pt.idx")    
+    iterateDatabaseForTesting(database, "pt.idx")    
 
 def createIndex3(filename):
     try:
 	database = db.DB()
+	database.set_flags(db.DB_DUP)
 	database.open("pt.idx", None, db.DB_BTREE, db.DB_CREATE)
     except:
 	print("Database wouldn't open.")
@@ -114,6 +116,7 @@ def createHashDatabase(filename):
     try:
         database = db.DB()
         database.open("rw.idx", None, db.DB_HASH, db.DB_CREATE)
+	database.set_flags(db.DB_DUP)
     except:
         print("Database wouldn't open.")
     with open(filename, "r") as contents:
