@@ -9,24 +9,29 @@ def main():
         if text == "exit":
             return
         else:
-            parseReview(0)
-        #    parseQuery(text)
+            parseQuery(text)
 
 
 def parseQuery(text):
     queryList = text.split()
+    i = 0
+    while i < len(queryList):
+        query = queryList[i]
+        if (i+2 < len(queryList) and (queryList[i+1] == '<' or queryList[i+1] == '>')):
+            query = queryList[i] + queryList[i+1] + queryList[i+2]
+            i+=2
+        if ('<' in query) or ('>' in query):
+            # Do whatever should be done with this kind of query here
+            pass
+        i+=1
 
     validQuery = False
 
     if validQuery:
-        pass
+        printReviews()
     else:
         print('"'+text+'" is not a valid query')
 
-
-def executeQuery():
-    pass
-    #Return a list of reviews
 
 # Turns Reviews into Dictionary
 def parseReview(reviewNumber):
@@ -39,6 +44,7 @@ def parseReview(reviewNumber):
     reviewDict = dict(zip(reviewsColumns, reviewItems))
     return reviewDict
 
+# Prints Reviews for User
 def printReviews(reviews):
     for review in reviews:
         reviewDict = parseReview(review)
