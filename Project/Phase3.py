@@ -6,7 +6,9 @@ reviewsColumns = ["productId","title","price","userId","profileName","helpfulnes
 def main():
     while True:
         text = raw_input(':').lower()
-        if text == "exit":
+        if text == "":
+            pass
+        elif text == "exit":
             return
         else:
             parseQuery(text)
@@ -20,8 +22,12 @@ def parseQuery(text):
         if (i+2 < len(queryList) and (queryList[i+1] == '<' or queryList[i+1] == '>')):
             query = queryList[i] + queryList[i+1] + queryList[i+2]
             i+=2
+        elif (i+1 < len(queryList) and ('<' in queryList[i+1] or '>' in queryList[i+1] or '<' in queryList[i] or '>' in queryList[i])):
+            query = queryList[i] + queryList[i+1]
+            i+=1
         if ('<' in query) or ('>' in query):
             compareQuery(query)
+        print query
         i+=1
 
     validQuery = False
@@ -36,6 +42,7 @@ def parseQuery(text):
 # Return a list of review keys
 
 def compareQuery(query):
+    reviewList = []
     return reviewList
 
 
