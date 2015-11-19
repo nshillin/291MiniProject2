@@ -20,7 +20,7 @@ def parseQuery(text):
     organizedQueryList = organizeQueries(queryList)
     if len(organizedQueryList) == 0:
         return
-    reviewList = []
+    reviewList = [1]
     for query in organizedQueryList:
         if ('<' in query) or ('>' in query):
             reviewList = compareQuery(query, reviewList)
@@ -81,12 +81,11 @@ def compareQuery(query, reviewList):
 
 def compare_rscore(item2String, comparator):
     item2 = float(item2String)
-
+    # grab all rscores from bd as item1
     compareTwoItems(item1, comparator, item2)
     return reviewList
 
 def compare_rdate(item2String, comparator, reviewList):
-    reviewList = [1]
     updatedReviewList = []
     item2 = datetime.datetime.strptime(item2String, "%Y/%m/%d")
     for i in reviewList:
