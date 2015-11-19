@@ -1,5 +1,6 @@
 #from bsddb3 import db
 from csv import reader
+import datetime
 
 reviewsColumns = ["productId","title","price","userId","profileName","helpfulness","score","time","summary","text"]
 
@@ -19,12 +20,13 @@ def parseQuery(text):
     organizedQueryList = organizeQueries(queryList)
     if len(organizedQueryList) == 0:
         return
+    reviewList = []
     for query in organizedQueryList:
         if ('<' in query) or ('>' in query):
-            compareQuery(query)
+            reviewList = compareQuery(query, reviewList)
         # Some other query type
 
-    printReviews()
+    printReviews(reviewList)
 
 
 #### Fixes < and > queries, as well as adds them to the end of the organizedQueryList
@@ -42,9 +44,9 @@ def organizeQueries(queryList):
         elif (i+1 < len(queryList) and ('<' in queryList[i+1] or '>' in queryList[i+1] or '<' in queryList[i] or '>' in queryList[i])):
             query = queryList[i] + queryList[i+1]
             i+=1
-            
+
         # Something should be here to stop invalid queries
-        if false:
+        if False:
             print('"'+text+'" is not a valid query')
             return []
 
@@ -60,10 +62,47 @@ def organizeQueries(queryList):
 # Query handlers should accept a command and
 
 # Return a list of review keys
-def compareQuery(query):
-    reviewList = []
+def compareQuery(query, reviewList):
+    if '<' in query:
+        comparator = '<'
+        query = query.replace('<', '')
+    elif '>' in query:
+        comparator = '>'
+        query = query.replace('>', '')
+
+    if "rscore" in query:
+        query = query.replace('rscore','')
+        reviewList = compare_rscore(query, comparator)
+    elif "rdate" in query:
+        query = query.replace('rdate','')
+        reviewList = compare_rdate(query, comparator, reviewList)
+
     return reviewList
 
+def compare_rscore(item2String, comparator):
+    item2 = float(item2String)
+
+    compareTwoItems(item1, comparator, item2)
+    return reviewList
+
+def compare_rdate(item2String, comparator, reviewList):
+    reviewList = [1]
+    updatedReviewList = []
+    item2 = datetime.datetime.strptime(item2String, "%Y/%m/%d")
+    for i in reviewList:
+        review = parseReview(i)
+        item1Int = int(review['time'])
+        item1 = datetime.datetime.fromtimestamp(item1Int)
+        if compareTwoItems(item1, comparator,item2):
+            updatedReviewList.append(i)
+    print updatedReviewList
+    return updatedReviewList
+
+def compareTwoItems(item1,comparator,item2):
+    if comparator == '<':
+        return item1 < item2
+    elif comparator == '>':
+        return item1 > item2
 
 # End of query handlers
 
@@ -74,7 +113,7 @@ def parseReview(reviewNumber):
     #review = database.get(reviewNumber).decode("utf-8")
     #database.close()
     #reviewItems = reader(review).next()
-    reviewItems = ["1","2","3","4","5","6","7","8","9","10"]
+    reviewItems = ["1","2","3","4","5","6","7","1182816000","9","10"]
     reviewDict = dict(zip(reviewsColumns, reviewItems))
     return reviewDict
 
