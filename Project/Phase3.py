@@ -2,7 +2,7 @@
 from csv import reader
 import datetime
 
-reviewsColumns = ["productId","title","price","userId","profileName","helpfulness","score","time","summary","text"]
+reviewsColumns = ["productId","title","price","userId","profileName","helpfulness","score","date","summary","text"]
 
 def main():
     while True:
@@ -91,8 +91,7 @@ def compare_rdate(item2String, comparator, reviewList):
     item2 = datetime.datetime.strptime(item2String, "%Y/%m/%d")
     for i in reviewList:
         review = parseReview(i)
-        item1Int = int(review['time'])
-        item1 = datetime.datetime.fromtimestamp(item1Int)
+        item1 = datetime.datetime.strptime(review['date'], "%Y/%m/%d")
         if compareTwoItems(item1, comparator,item2):
             updatedReviewList.append(i)
     print updatedReviewList
@@ -115,6 +114,8 @@ def parseReview(reviewNumber):
     #reviewItems = reader(review).next()
     reviewItems = ["1","2","3","4","5","6","7","1182816000","9","10"]
     reviewDict = dict(zip(reviewsColumns, reviewItems))
+    date = datetime.datetime.fromtimestamp(int(reviewDict['date']))
+    reviewDict['date'] = date.strftime('%Y/%m/%d')
     return reviewDict
 
 # Prints Reviews for User
