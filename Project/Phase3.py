@@ -24,6 +24,7 @@ def parseQuery(text):
     for query in organizedQueryList:
         if ('<' in query) or ('>' in query):
             reviewList = compareQuery(query, reviewList)
+        print reviewList
         # Some other query type
 
     printReviews(reviewList)
@@ -76,6 +77,9 @@ def compareQuery(query, reviewList):
     elif "rdate" in query:
         query = query.replace('rdate','')
         reviewList = compare_rdate(query, comparator, reviewList)
+    elif "pprice" in query:
+        query = query.replace('pprice','')
+        reviewList = compare_pprice(query, comparator, reviewList)
 
     return reviewList
 
@@ -93,7 +97,16 @@ def compare_rdate(item2String, comparator, reviewList):
         item1 = datetime.datetime.strptime(review['date'], "%Y/%m/%d")
         if compareTwoItems(item1, comparator,item2):
             updatedReviewList.append(i)
-    print updatedReviewList
+    return updatedReviewList
+
+def compare_pprice(item2String, comparator, reviewList):
+    updatedReviewList = []
+    item2 = float(item2String)
+    for i in reviewList:
+        review = parseReview(i)
+        item1 = float(review['price'])
+        if compareTwoItems(item1, comparator,item2):
+            updatedReviewList.append(i)
     return updatedReviewList
 
 def compareTwoItems(item1,comparator,item2):
