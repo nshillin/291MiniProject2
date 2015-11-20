@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#Sets up files and sorts them.
+
+sort -u pterms.txt -o pterms.txt
+sort -u rterms.txt -o rterms.txt
+sort -u scores.txt -o scores.txt
