@@ -1,7 +1,19 @@
 #!/bin/bash
 
 #Sets up files and sorts them.
+echo "Starting Phase1.py. Please enter the reviews file you wish to use(.txt) followed by the enter key."
+read reviewFile
+python Phase1.py $reviewFile
+
+echo "Finished generating Phase 2 data."
+
+echo "Starting sorting script."
 
 sort -u pterms.txt -o pterms.txt
 sort -u rterms.txt -o rterms.txt
 sort -u scores.txt -o scores.txt
+
+echo "Sorting is complete."
+echo "Starting Phase 2 program."
+
+python Phase2.py

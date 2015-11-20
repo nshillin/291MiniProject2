@@ -3,25 +3,24 @@ from bsddb3 import db
 
 def main():
     filesList = []
-    print("I am totes working.")
+    #print("I am totes working.")
     try: 
-	fileName1 = str(sys.argv[1])
-	fileName2 = str(sys.argv[2])
-	fileName3 = str(sys.argv[3])
-	fileName4 = str(sys.argv[4])
-	filesList.append(fileName1)
+        fileName1 = "reviews.txt"
+        fileName2 = "pterms.txt"
+        fileName3 = "rterms.txt"
+        fileName4 = "scores.txt"
+        filesList.append(fileName1)
 	#print(fileName1 + " first file\n")
-	filesList.append(fileName2)
+        filesList.append(fileName2)
 	#print(fileName2 + " second file\n")
-	filesList.append(fileName3)
+        filesList.append(fileName3)
 	#print(fileName3 + " third file\n")
-	filesList.append(fileName4)
+        filesList.append(fileName4)
 	#print(fileName4 + " fourth file\n")
-	for filename in filesList:
-	    #print(filename)
-	    sortFile(filename)
+        for filename in filesList:
+            sortFile(filename)
     except Exception as e:
-        print("Expected more files in input.")
+        print("Phase 1 has not been run for the necessary text files.")
 
 def sortLines(filename):
     file = open(filename, "r").read()
@@ -34,13 +33,13 @@ def sortLines(filename):
     return "\n".join(lines)
 
 def sortFile(filename):
-    print("Thank goodness I made it!")
+    #print("Thank goodness I made it!")
     btree = False
     #print(btree)
     #print(filename + " current file name\n")
     if filename != 'reviews.txt':
 	#sortedFile = open(filename, "w")
-        sort = sortLines(filename)
+        #sort = sortLines(filename)
         #print(sort)
 	#sortedFile.write()
 	#sort = subprocess.Popen(['sort', fileName, '| uniq -u'], stdout = subprocess.PIPE)
@@ -193,10 +192,12 @@ def createHashDatabase(filename):
 	inValue = False;
 	for line in file:
 	    if line == "\n":
+	        #print("\n" + str(reviewID) + "\n")
 		value = "".join(entries)
-		print(value)
+		#print("I AM YOUR REVIEW. " + str(reviewID) + value)
 		database.put(str(reviewID),value)
 		reviewID += 1
+		entries = []
 		inValue = False
 	    elif line == "," and not inValue:
 		inValue = True
