@@ -4,12 +4,6 @@ import datetime
 
 reviewsColumns = ["productId","title","price","userId","profileName","helpfulness","score","date","summary","text"]
 
-#for storing query data
-pTerms = []
-rTerms = []
-timestampRange = []
-scoreRange = []
-
 def main():
     while True:
         text = raw_input(':').lower()
