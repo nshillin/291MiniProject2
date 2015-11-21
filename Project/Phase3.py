@@ -8,6 +8,7 @@ reviewsColumns = ["productId","title","price","userId","profileName","helpfulnes
 class QueryData:
 	def __init__(self):
 		#Terms to be checked
+		self.terms = []
 		self.termsP = []
 		self.termsR = []
 		#Value must be > value 0, < value 1
@@ -44,28 +45,7 @@ class QueryData:
 	def term_update(fieldStr, termStr):
 		#Adds terms.
 		if fieldStr is None:
-			#TODO: figure this out
-			return
-		elif fieldStr == 'p:':
-			termsP.append(termStr)
-		elif fieldStr == 'r:':
-			termsR.append(termStr)
-
-	def date_update(oper, dateStr):
-		#TODO: write this
-		pass
-		return
-
-	def value_update(fieldStr, oper, valueStr):
-		#TODO: write this
-		pass
-		return
-
-	def term_update(fieldStr, termStr):
-		if fieldStr is None:
-			#TODO: figure this out
-			pass
-			return
+			terms.append(termStr)
 		elif fieldStr == 'p:':
 			termsP.append(termStr)
 		elif fieldStr == 'r:':
