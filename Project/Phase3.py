@@ -124,11 +124,13 @@ def compare_rdate(queryData):
 		updatedReviewList = []
 		for r in queryData.reviews:
 			review = parseReview(r)
-			print dates[0]
-			print review['date']
-			if (dates[0] != None) and (dates[0] < review['date']):
-				pass
-			if (dates[1] != None) and (dates[1] > review['date']):
+			if dates[0] == None:
+				if dates[1] > review['date']:
+					updatedReviewList.append(r)
+			elif dates[1] == None:
+				if dates[0] < review['date']:
+					updatedReviewList.append(r)
+			elif (dates[0] < review['date']) and (dates[1] > review['date']):
 				updatedReviewList.append(r)
 		queryData.reviews = updatedReviewList
 	return queryData
@@ -151,7 +153,7 @@ def parseReview(reviewNumber):
     #review = database.get(reviewNumber).decode("utf-8")
     #database.close()
     #reviewItems = reader(review).next()
-    reviewItems = ["1","2","3","4","5","6","7","1182816000","9","10"]
+    reviewItems = ["1","2","3","4","5","6","7","1182816100","9","10"]
     reviewDict = dict(zip(reviewsColumns, reviewItems))
     date = datetime.datetime.fromtimestamp(int(reviewDict['date']))
     reviewDict['date'] = date
@@ -163,7 +165,7 @@ def printReviews(reviews):
 		print review
 		reviewDict = parseReview(review)
 		for i in reviewDict:
-			print i + ":" + reviewDict[i]
+			print i + ":" + str(reviewDict[i])
 		print ''
 
 main()
