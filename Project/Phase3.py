@@ -94,17 +94,17 @@ def parseQuery(text):
 		matcher = re.search(regex_date, text)
 		if matcher is not None:
 			data.date_update(matcher.group(1), matcher.group(2))
-			re.sub(regex_date, '', text)
+			text = re.sub(regex_date, '', text)
 			continue
 		matcher = re.search(regex_value, text)
 		if matcher is not None:
 			data.value_update(matcher.group(1), matcher.group(2), matcher.group(3))
-			re.sub(regex_value, '', text)
+			text = re.sub(regex_value, '', text)
 			continue
 		matcher = re.search(regex_term, text)
 		if matcher is not None:
 			data.term_update(matcher.group(1),matcher.group(2))
-			re.sub(regex_term, '', text)
+			text = re.sub(regex_term, '', text)
 			continue
 		return None
     return data
