@@ -1,6 +1,7 @@
 #from bsddb3 import db
 from csv import reader
 import datetime
+import re
 
 reviewsColumns = ["productId","title","price","userId","profileName","helpfulness","score","date","summary","text"]
 
