@@ -10,19 +10,38 @@ class QueryData:
 		self.termsP = []
 		self.termsR = []
 		#Value must be > value 0, < value 1
-		self.rscore = [None, None]
-		self.pprice = [None, None]
-		self.rdate = [None, None]
+		self.ranges = {
+		'rscore', [None, None]
+		'pprice', [None, None]
+		'rdate', [None, None]
+		}
 
     def date_update(oper, dateStr):
-        #TODO: write this
+		#Updates the rdate values.
+		if oper == '>':
+			original = self.ranges['rdate'][0]
+			if original is None or compareTwoItems(datetime.datetime.strptime(dateStr, "%Y/%m/%d"), oper, datetime.datetime.strptime(original, "%Y/%m/%d")):
+				self.ranges['rdate'][0] = dateStr;
+		elif oper == '<':
+			original = self.ranges['rdate'][1]
+			if original is None or compareTwoItems(datetime.datetime.strptime(dateStr, "%Y/%m/%d"), oper, datetime.datetime.strptime(original, "%Y/%m/%d")):
+				self.ranges['rdate'][1] = dateStr;
         return
 
     def value_update(fieldStr, oper, valueStr):
-        #TODO: write this
+		#Updates the rscore or pprice values.
+		if oper == '>':
+			original = self.ranges[fieldStr][0]
+			if original is None or compareTwoItems(float(valueStr), oper, float(original)):
+				self.ranges[fieldStr][0] = valueStr;
+		elif oper == '<':
+			original = self.ranges[fieldStr][1]
+			if original is None or compareTwoItems(float(valueStr), oper, float(original)):
+				self.ranges[fieldStr][1] = valueStr;
         return
 
     def term_update(fieldStr, termStr):
+		#Adds terms.
         if fieldStr is None:
             #TODO: figure this out
             return
@@ -39,7 +58,11 @@ def main():
         elif text == "exit":
             return
         else:
-            parseQuery(text)
+            queryData = parseQuery(text)
+			if queryData is None:
+				print('Invalid query.')
+			else:
+				#TODO: Put search stuff here
 
 '''
 def parseQuery(text):
@@ -56,6 +79,7 @@ def parseQuery(text):
 
     printReviews(reviewList)
     '''
+
 def parseQuery(text):
     regex_date = '^\s*rdate\s*([<>])\s*(\d{4}[/]\d{2}[/]\d{2})(\s+|\Z)'
     regex_value = '^\s*(rscore|pprice)\s*([<>])\s*([-]?\d+([.]\d+)?)(\s+|\Z)'
