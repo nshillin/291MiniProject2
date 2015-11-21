@@ -141,19 +141,13 @@ def reviewHandler(queryData):
 
 def compareRange(queryRange, reviewData):
 	if queryRange != [None, None]:
-		print 0
 		if queryRange[0] == None:
-			print [0]
 			if not(queryRange[1] > reviewData):
-				print 1
 				return False
 		elif queryRange[1] == None:
-			print [1]
 			if not(queryRange[0] < reviewData):
-				print 2
 				return False
 		elif not((queryRange[0] < reviewData) and (queryRange[1] > reviewData)):
-			print 3
 			return False
 	return True
 
