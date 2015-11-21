@@ -22,26 +22,28 @@ class QueryData:
 
 	def date_update(self, oper, dateStr):
 		#Updates the rdate values.
+		date = datetime.datetime.strptime(dateStr, "%Y/%m/%d")
 		if oper == '>':
 			original = self.ranges['rdate'][0]
-			if original is None or compareTwoItems(datetime.datetime.strptime(dateStr, "%Y/%m/%d"), oper, original):
-				self.ranges['rdate'][0] = datetime.datetime.strptime(dateStr, "%Y/%m/%d");
+			if original is None or compareTwoItems(date, oper, original):
+				self.ranges['rdate'][0] = date;
 		elif oper == '<':
 			original = self.ranges['rdate'][1]
-			if original is None or compareTwoItems(datetime.datetime.strptime(dateStr, "%Y/%m/%d"), oper, original):
-				self.ranges['rdate'][1] = datetime.datetime.strptime(dateStr, "%Y/%m/%d");
+			if original is None or compareTwoItems(date, oper, original):
+				self.ranges['rdate'][1] = date;
 		return
 
 	def value_update(self, fieldStr, oper, valueStr):
 		#Updates the rscore or pprice values.
+		value = float(valueStr)
 		if oper == '>':
 			original = self.ranges[fieldStr][0]
-			if original is None or compareTwoItems(float(valueStr), oper, float(original)):
-				self.ranges[fieldStr][0] = valueStr;
+			if original is None or compareTwoItems(value, oper, original):
+				self.ranges[fieldStr][0] = value;
 		elif oper == '<':
 			original = self.ranges[fieldStr][1]
-			if original is None or compareTwoItems(float(valueStr), oper, float(original)):
-				self.ranges[fieldStr][1] = valueStr;
+			if original is None or compareTwoItems(value, oper, original):
+				self.ranges[fieldStr][1] = value;
 		return
 
 	def term_update(self, fieldStr, termStr):
@@ -103,35 +105,55 @@ def search(queryData):
 		pass
 	if queryData.termsR != []:
 		pass
-	queryData = compare_rscore(queryData)
+#	queryData = compare_rscore(queryData)
 	reviewHandler(queryData)
 
 ## Start of query handlers
 # Query handlers should accept a command and
-
+"""
 def compare_rscore(queryData):
-	if queryData.ranges['rscore'] != [None, None]:
-		# grab all rscores from bd as item1
-		pass
-	return queryData
+	###database = db.DB()
+    #database.open("sc.idx")
+    #review = database.get(reviewNumber).decode("utf-8")
+	if queryRange != [None, None]:
+		if queryRange[0] == None:
+			value = cur.first()
+		elif queryRange[1] == None:
+			end = cur.last().decode("utf-8")
+			value = cur.range("b'"+str(queryRange[0]+0.1)+"'")
+		elif not((queryRange[0] < reviewData) and (queryRange[1] > reviewData)):
+			return False
 
+		while value:
+			print(value)
+			value = cur.next()
+	#database.close()
+	return queryData
+"""
 def reviewHandler(queryData):
 	for r in queryData.reviews:
 		review = parseReview(r)
 		dates = queryData.ranges['rdate']
 		prices = queryData.ranges['pprice']
-		if compareReviewData(dates, review['date']) and compareReviewData(prices, review['price']):
+		scores = queryData.ranges['rscore']
+		if compareRange(dates, review['date']) and compareRange(prices, review['price']) and compareRange(scores, review['score']):
 			printReview(review)
 
-def compareReviewData(queryRange, reviewData):
+def compareRange(queryRange, reviewData):
 	if queryRange != [None, None]:
+		print 0
 		if queryRange[0] == None:
+			print [0]
 			if not(queryRange[1] > reviewData):
+				print 1
 				return False
 		elif queryRange[1] == None:
+			print [1]
 			if not(queryRange[0] < reviewData):
+				print 2
 				return False
 		elif not((queryRange[0] < reviewData) and (queryRange[1] > reviewData)):
+			print 3
 			return False
 	return True
 
@@ -141,7 +163,7 @@ def compareReviewData(queryRange, reviewData):
 def parseReview(reviewNumber):
     #####database = db.DB()
     #database.open("rw.idx")
-    #review = database.get(reviewNumber).decode("utf-8")
+    #review = database.get(reviewNumber)[0].decode("utf-8")
     #database.close()
     #reviewItems = reader(review).next()
 	reviewItems = ["1","2","3","4","5","6","7","1182816100","9","10"]
@@ -149,6 +171,7 @@ def parseReview(reviewNumber):
 	date = datetime.datetime.fromtimestamp(int(reviewDict['date']))
 	reviewDict['date'] = date
 	reviewDict['price'] = float(reviewDict['price'])
+	reviewDict['score'] = float(reviewDict['score'])
 	return reviewDict
 
 # Prints individual Review for User
