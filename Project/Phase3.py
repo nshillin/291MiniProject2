@@ -104,10 +104,7 @@ def search(queryData):
 	if queryData.termsR != []:
 		pass
 	queryData = compare_rscore(queryData)
-	queryData = compare_pprice(queryData)
-	queryData = compare_rdate(queryData)
-
-	printReviews(queryData.reviews)
+	reviewHandler(queryData)
 
 ## Start of query handlers
 # Query handlers should accept a command and
@@ -118,22 +115,25 @@ def compare_rscore(queryData):
 		pass
 	return queryData
 
-def compare_rdate(queryData):
-	if queryData.ranges['rdate'] != [None, None]:
+def reviewHandler(queryData):
+	for r in queryData.reviews:
+		review = parseReview(r)
 		dates = queryData.ranges['rdate']
-		updatedReviewList = []
-		for r in queryData.reviews:
-			review = parseReview(r)
-			if dates[0] == None:
-				if dates[1] > review['date']:
-					updatedReviewList.append(r)
-			elif dates[1] == None:
-				if dates[0] < review['date']:
-					updatedReviewList.append(r)
-			elif (dates[0] < review['date']) and (dates[1] > review['date']):
-				updatedReviewList.append(r)
-		queryData.reviews = updatedReviewList
-	return queryData
+		prices = queryData.ranges['pprice']
+		if compare_rdate(dates, review['date']): #and compare_pprice(prices, review['price']):
+			printReview(review)
+
+def compare_rdate(dates, reviewDate):
+	if dates != [None, None]:
+		if dates[0] == None:
+			if not(dates[1] > reviewDate):
+				return False
+		elif dates[1] == None:
+			if not(dates[0] < reviewDate):
+				return False
+		elif not((dates[0] < reviewDate) and (dates[1] > reviewDate)):
+			return False
+	return True
 
 def compare_pprice(queryData):
 	if queryData.ranges['pprice'] != [None, None]:
@@ -159,13 +159,11 @@ def parseReview(reviewNumber):
     reviewDict['date'] = date
     return reviewDict
 
-# Prints Reviews for User
-def printReviews(reviews):
-    for review in reviews:
-		print review
-		reviewDict = parseReview(review)
-		for i in reviewDict:
-			print i + ":" + str(reviewDict[i])
-		print ''
+# Prints individual Review for User
+def printReview(review):
+	reviewDict = parseReview(review)
+	for i in reviewDict:
+		print i + ":" + str(reviewDict[i])
+	print ''
 
 main()
