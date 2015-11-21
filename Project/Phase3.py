@@ -11,12 +11,12 @@ class QueryData:
 		self.termsR = []
 		#Value must be > value 0, < value 1
 		self.ranges = {
-		'rscore', [None, None]
-		'pprice', [None, None]
-		'rdate', [None, None]
+		'rscore': [None, None],
+		'pprice': [None, None],
+		'rdate': [None, None]
 		}
 
-    def date_update(oper, dateStr):
+	def date_update(oper, dateStr):
 		#Updates the rdate values.
 		if oper == '>':
 			original = self.ranges['rdate'][0]
@@ -26,9 +26,9 @@ class QueryData:
 			original = self.ranges['rdate'][1]
 			if original is None or compareTwoItems(datetime.datetime.strptime(dateStr, "%Y/%m/%d"), oper, datetime.datetime.strptime(original, "%Y/%m/%d")):
 				self.ranges['rdate'][1] = dateStr;
-        return
+		return
 
-    def value_update(fieldStr, oper, valueStr):
+	def value_update(fieldStr, oper, valueStr):
 		#Updates the rscore or pprice values.
 		if oper == '>':
 			original = self.ranges[fieldStr][0]
@@ -38,31 +38,53 @@ class QueryData:
 			original = self.ranges[fieldStr][1]
 			if original is None or compareTwoItems(float(valueStr), oper, float(original)):
 				self.ranges[fieldStr][1] = valueStr;
-        return
+		return
 
-    def term_update(fieldStr, termStr):
+	def term_update(fieldStr, termStr):
 		#Adds terms.
-        if fieldStr is None:
-            #TODO: figure this out
-            return
-        elif fieldStr == 'p:':
-            termsP.append(termStr)
-        elif fieldStr == 'r:':
-            termsR.append(termStr)
+		if fieldStr is None:
+			#TODO: figure this out
+			return
+		elif fieldStr == 'p:':
+			termsP.append(termStr)
+		elif fieldStr == 'r:':
+			termsR.append(termStr)
+
+	def date_update(oper, dateStr):
+		#TODO: write this
+		pass
+		return
+
+	def value_update(fieldStr, oper, valueStr):
+		#TODO: write this
+		pass
+		return
+
+	def term_update(fieldStr, termStr):
+		if fieldStr is None:
+			#TODO: figure this out
+			pass
+			return
+		elif fieldStr == 'p:':
+			termsP.append(termStr)
+		elif fieldStr == 'r:':
+			termsR.append(termStr)
 
 def main():
-    while True:
-        text = raw_input(':').lower()
-        if text.strip(' ') == "":
-            pass
-        elif text == "exit":
-            return
-        else:
-            queryData = parseQuery(text)
+	while True:
+		text = raw_input(':').lower()
+		if text.strip(' ') == "":
+			pass
+		elif text == "exit":
+			return
+		else:
+			queryData = parseQuery(text)
 			if queryData is None:
 				print('Invalid query.')
 			else:
 				#TODO: Put search stuff here
+				pass
+
 
 '''
 def parseQuery(text):
@@ -78,7 +100,7 @@ def parseQuery(text):
         # Some other query type
 
     printReviews(reviewList)
-    '''
+'''
 
 def parseQuery(text):
     regex_date = '^\s*rdate\s*([<>])\s*(\d{4}[/]\d{2}[/]\d{2})(\s+|\Z)'
