@@ -4,6 +4,16 @@ import datetime
 
 reviewsColumns = ["productId","title","price","userId","profileName","helpfulness","score","date","summary","text"]
 
+class QueryData:
+	def __init__(self):
+		#Terms to be checked
+		self.termsP = []
+		self.termsR = []
+		#Value must be > value 0, < value 1
+		self.rscore = [None, None]
+		self.pprice = [None, None]
+		self.rdate = [None, None]
+
 def main():
     while True:
         text = raw_input(':').lower()
