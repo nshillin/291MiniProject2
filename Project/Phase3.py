@@ -120,29 +120,20 @@ def reviewHandler(queryData):
 		review = parseReview(r)
 		dates = queryData.ranges['rdate']
 		prices = queryData.ranges['pprice']
-		if compare_rdate(dates, review['date']): #and compare_pprice(prices, review['price']):
+		if compareReviewData(dates, review['date']) and compareReviewData(prices, review['price']):
 			printReview(review)
 
-def compare_rdate(dates, reviewDate):
-	if dates != [None, None]:
-		if dates[0] == None:
-			if not(dates[1] > reviewDate):
+def compareReviewData(queryRange, reviewData):
+	if queryRange != [None, None]:
+		if queryRange[0] == None:
+			if not(queryRange[1] > reviewData):
 				return False
-		elif dates[1] == None:
-			if not(dates[0] < reviewDate):
+		elif queryRange[1] == None:
+			if not(queryRange[0] < reviewData):
 				return False
-		elif not((dates[0] < reviewDate) and (dates[1] > reviewDate)):
+		elif not((queryRange[0] < reviewData) and (queryRange[1] > reviewData)):
 			return False
 	return True
-
-def compare_pprice(queryData):
-	if queryData.ranges['pprice'] != [None, None]:
-		pass
-		for r in queryData.reviews:
-			review = parseReview(r)
-			# float(review['price'])
-			# updatedReviewList.append(r)
-	return queryData
 
 # End of query handlers
 
@@ -153,11 +144,12 @@ def parseReview(reviewNumber):
     #review = database.get(reviewNumber).decode("utf-8")
     #database.close()
     #reviewItems = reader(review).next()
-    reviewItems = ["1","2","3","4","5","6","7","1182816100","9","10"]
-    reviewDict = dict(zip(reviewsColumns, reviewItems))
-    date = datetime.datetime.fromtimestamp(int(reviewDict['date']))
-    reviewDict['date'] = date
-    return reviewDict
+	reviewItems = ["1","2","3","4","5","6","7","1182816100","9","10"]
+	reviewDict = dict(zip(reviewsColumns, reviewItems))
+	date = datetime.datetime.fromtimestamp(int(reviewDict['date']))
+	reviewDict['date'] = date
+	reviewDict['price'] = float(reviewDict['price'])
+	return reviewDict
 
 # Prints individual Review for User
 def printReview(review):
