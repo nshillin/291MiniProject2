@@ -14,17 +14,29 @@ class QueryData:
 		self.pprice = [None, None]
 		self.rdate = [None, None]
 
+    def date_update(oper, dateStr):
+        #TODO: write this
+        return
+
+    def value_update(fieldStr, oper, value):
+        #TODO: write this
+        return
+
+    def term_update(fieldStr, termStr):
+        #TODO: write this
+        return
+
 def main():
     while True:
         text = raw_input(':').lower()
-        if text == "":
+        if text.strip(' ') == "":
             pass
         elif text == "exit":
             return
         else:
             parseQuery(text)
 
-
+'''
 def parseQuery(text):
     queryList = text.split()
     organizedQueryList = organizeQueries(queryList)
@@ -38,6 +50,30 @@ def parseQuery(text):
         # Some other query type
 
     printReviews(reviewList)
+    '''
+def parseQuery(text):
+    regex_date = '^\s*rdate\s*([<>])\s*(\d{4}[/]\d{2}[/]\d{2})(\s+|\Z)'
+    regex_value = '^\s*(rscore|pprice)\s*([<>])\s*([-]?\d+([.]\d+)?)(\s+|\Z)'
+    regex_term = '^\s*([pr]:)?(\w+[%]?)(\s+|\Z)'
+
+    data = QueryData()
+
+    while len(text) > 0:
+        if re.search(regex_date, text) is not None:
+            matcher = re.search(regex_date, text)
+            #TODO: update data
+            re.sub(regex_date, '', text)
+        elif re.search(regex_value, text) is not None:
+            matcher = re.search(regex_value, text)
+            #TODO: update data
+            re.sub(regex_value, '', text)
+        elif re.search(regex_term, text) is not None:
+            matcher = re.search(regex_term, text)
+            #TODO: update data
+            re.sub(regex_term, '', text)
+        else:
+            return None
+    return data
 
 
 #### Fixes < and > queries, as well as adds them to the end of the organizedQueryList
