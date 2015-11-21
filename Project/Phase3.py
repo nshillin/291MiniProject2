@@ -18,7 +18,7 @@ class QueryData:
 		'rdate': [None, None]
 		}
 
-	def date_update(oper, dateStr):
+	def date_update(self, oper, dateStr):
 		#Updates the rdate values.
 		if oper == '>':
 			original = self.ranges['rdate'][0]
@@ -30,7 +30,7 @@ class QueryData:
 				self.ranges['rdate'][1] = dateStr;
 		return
 
-	def value_update(fieldStr, oper, valueStr):
+	def value_update(self, fieldStr, oper, valueStr):
 		#Updates the rscore or pprice values.
 		if oper == '>':
 			original = self.ranges[fieldStr][0]
@@ -42,14 +42,14 @@ class QueryData:
 				self.ranges[fieldStr][1] = valueStr;
 		return
 
-	def term_update(fieldStr, termStr):
+	def term_update(self, fieldStr, termStr):
 		#Adds terms.
 		if fieldStr is None:
-			terms.append(termStr)
+			self.terms.append(termStr)
 		elif fieldStr == 'p:':
-			termsP.append(termStr)
+			self.termsP.append(termStr)
 		elif fieldStr == 'r:':
-			termsR.append(termStr)
+			self.termsR.append(termStr)
 
 def main():
 	while True:
@@ -93,21 +93,20 @@ def parseQuery(text):
     while len(text) > 0:
 		matcher = re.search(regex_date, text)
 		if matcher is not None:
-			QueryData.date_update(matcher.group(1), matcher.group(2))
+			data.date_update(matcher.group(1), matcher.group(2))
 			re.sub(regex_date, '', text)
 			continue
 		matcher = re.search(regex_value, text)
 		if matcher is not None:
-			QueryData.value_update(matcher.group(1), matcher.group(2), matcher.group(3))
+			data.value_update(matcher.group(1), matcher.group(2), matcher.group(3))
 			re.sub(regex_value, '', text)
 			continue
 		matcher = re.search(regex_term, text)
 		if matcher is not None:
-			QueryData.term_update(matcher.group(1), matcher.group(2))
+			data.term_update(matcher.group(1),matcher.group(2))
 			re.sub(regex_term, '', text)
 			continue
-		else:
-			return None
+		return None
     return data
 
 
