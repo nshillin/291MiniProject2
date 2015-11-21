@@ -18,7 +18,7 @@ class QueryData:
         #TODO: write this
         return
 
-    def value_update(fieldStr, oper, value):
+    def value_update(fieldStr, oper, valueStr):
         #TODO: write this
         return
 
@@ -61,15 +61,15 @@ def parseQuery(text):
     while len(text) > 0:
         if re.search(regex_date, text) is not None:
             matcher = re.search(regex_date, text)
-            #TODO: update data
+            QueryData.date_update(matcher.group(1), matcher.group(2))
             re.sub(regex_date, '', text)
         elif re.search(regex_value, text) is not None:
             matcher = re.search(regex_value, text)
-            #TODO: update data
+            QueryData.value_update(matcher.group(1), matcher.group(2), matcher.group(3))
             re.sub(regex_value, '', text)
         elif re.search(regex_term, text) is not None:
             matcher = re.search(regex_term, text)
-            #TODO: update data
+            QueryData.term_update(matcher.group(1), matcher.group(2))
             re.sub(regex_term, '', text)
         else:
             return None
