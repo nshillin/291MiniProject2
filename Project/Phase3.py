@@ -23,8 +23,13 @@ class QueryData:
         return
 
     def term_update(fieldStr, termStr):
-        #TODO: write this
-        return
+        if fieldStr is None:
+            #TODO: figure this out
+            return
+        elif fieldStr == 'p:':
+            termsP.append(termStr)
+        elif fieldStr == 'r:':
+            termsR.append(termStr)
 
 def main():
     while True:
