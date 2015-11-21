@@ -17,17 +17,19 @@ class QueryData:
 		'pprice': [None, None],
 		'rdate': [None, None]
 		}
+		# List of reviews
+		self.reviews = [1]
 
 	def date_update(self, oper, dateStr):
 		#Updates the rdate values.
 		if oper == '>':
 			original = self.ranges['rdate'][0]
-			if original is None or compareTwoItems(datetime.datetime.strptime(dateStr, "%Y/%m/%d"), oper, datetime.datetime.strptime(original, "%Y/%m/%d")):
-				self.ranges['rdate'][0] = dateStr;
+			if original is None or compareTwoItems(datetime.datetime.strptime(dateStr, "%Y/%m/%d"), oper, original):
+				self.ranges['rdate'][0] = datetime.datetime.strptime(dateStr, "%Y/%m/%d");
 		elif oper == '<':
 			original = self.ranges['rdate'][1]
-			if original is None or compareTwoItems(datetime.datetime.strptime(dateStr, "%Y/%m/%d"), oper, datetime.datetime.strptime(original, "%Y/%m/%d")):
-				self.ranges['rdate'][1] = dateStr;
+			if original is None or compareTwoItems(datetime.datetime.strptime(dateStr, "%Y/%m/%d"), oper, original):
+				self.ranges['rdate'][1] = datetime.datetime.strptime(dateStr, "%Y/%m/%d");
 		return
 
 	def value_update(self, fieldStr, oper, valueStr):
@@ -64,24 +66,8 @@ def main():
 				print('Invalid query.')
 			else:
 				#TODO: Put search stuff here
-				pass
+				search(queryData)
 
-
-'''
-def parseQuery(text):
-    queryList = text.split()
-    organizedQueryList = organizeQueries(queryList)
-    if len(organizedQueryList) == 0:
-        return
-    reviewList = [1]
-    for query in organizedQueryList:
-        if ('<' in query) or ('>' in query):
-            reviewList = compareQuery(query, reviewList)
-        print reviewList
-        # Some other query type
-
-    printReviews(reviewList)
-'''
 
 def parseQuery(text):
     regex_date = '^\s*rdate\s*([<>])\s*(\d{4}[/]\d{2}[/]\d{2})(\s+|\Z)'
@@ -110,90 +96,51 @@ def parseQuery(text):
     return data
 
 
-#### Fixes < and > queries, as well as adds them to the end of the organizedQueryList
-# ,this is used to increase efficiency, as < and > require going through all of
-# the reviews, whereas other commands can just find the key and immediately find
-# the result
-def organizeQueries(queryList):
-    organizedQueryList = []
-    i = 0
-    while i < len(queryList):
-        query = queryList[i]
-        if (i+2 < len(queryList) and (queryList[i+1] == '<' or queryList[i+1] == '>')):
-            query = queryList[i] + queryList[i+1] + queryList[i+2]
-            i+=2
-        elif (i+1 < len(queryList) and ('<' in queryList[i+1] or '>' in queryList[i+1] or '<' in queryList[i] or '>' in queryList[i])):
-            query = queryList[i] + queryList[i+1]
-            i+=1
+def search(queryData):
+	if queryData.terms != []:
+		pass
+	if queryData.termsP != []:
+		pass
+	if queryData.termsR != []:
+		pass
+	queryData = compare_rscore(queryData)
+	queryData = compare_pprice(queryData)
+	queryData = compare_rdate(queryData)
 
-        # Something should be here to stop invalid queries
-        if False:
-            print('"'+text+'" is not a valid query')
-            return []
-
-        if ('<' in query) or ('>' in query):
-            organizedQueryList.append(query)
-        else:
-            organizedQueryList.insert(0,query)
-        i+=1
-    return organizedQueryList
-
+	printReviews(queryData.reviews)
 
 ## Start of query handlers
 # Query handlers should accept a command and
 
-# Return a list of review keys
-def compareQuery(query, reviewList):
-    if '<' in query:
-        comparator = '<'
-        query = query.replace('<', '')
-    elif '>' in query:
-        comparator = '>'
-        query = query.replace('>', '')
+def compare_rscore(queryData):
+	if queryData.ranges['rscore'] != [None, None]:
+		# grab all rscores from bd as item1
+		pass
+	return queryData
 
-    if "rscore" in query:
-        query = query.replace('rscore','')
-        reviewList = compare_rscore(query, comparator)
-    elif "rdate" in query:
-        query = query.replace('rdate','')
-        reviewList = compare_rdate(query, comparator, reviewList)
-    elif "pprice" in query:
-        query = query.replace('pprice','')
-        reviewList = compare_pprice(query, comparator, reviewList)
+def compare_rdate(queryData):
+	if queryData.ranges['rdate'] != [None, None]:
+		dates = queryData.ranges['rdate']
+		updatedReviewList = []
+		for r in queryData.reviews:
+			review = parseReview(r)
+			print dates[0]
+			print review['date']
+			if (dates[0] != None) and (dates[0] < review['date']):
+				pass
+			if (dates[1] != None) and (dates[1] > review['date']):
+				updatedReviewList.append(r)
+		queryData.reviews = updatedReviewList
+	return queryData
 
-    return reviewList
-
-def compare_rscore(item2String, comparator):
-    item2 = float(item2String)
-    # grab all rscores from bd as item1
-    compareTwoItems(item1, comparator, item2)
-    return reviewList
-
-def compare_rdate(item2String, comparator, reviewList):
-    updatedReviewList = []
-    item2 = datetime.datetime.strptime(item2String, "%Y/%m/%d")
-    for i in reviewList:
-        review = parseReview(i)
-        item1 = datetime.datetime.strptime(review['date'], "%Y/%m/%d")
-        if compareTwoItems(item1, comparator,item2):
-            updatedReviewList.append(i)
-    return updatedReviewList
-
-def compare_pprice(item2String, comparator, reviewList):
-    updatedReviewList = []
-    item2 = float(item2String)
-    for i in reviewList:
-        review = parseReview(i)
-        item1 = float(review['price'])
-        if compareTwoItems(item1, comparator,item2):
-            updatedReviewList.append(i)
-    return updatedReviewList
-
-def compareTwoItems(item1,comparator,item2):
-    if comparator == '<':
-        return item1 < item2
-    elif comparator == '>':
-        return item1 > item2
+def compare_pprice(queryData):
+	if queryData.ranges['pprice'] != [None, None]:
+		pass
+		for r in queryData.reviews:
+			review = parseReview(r)
+			# float(review['price'])
+			# updatedReviewList.append(r)
+	return queryData
 
 # End of query handlers
 
@@ -207,15 +154,16 @@ def parseReview(reviewNumber):
     reviewItems = ["1","2","3","4","5","6","7","1182816000","9","10"]
     reviewDict = dict(zip(reviewsColumns, reviewItems))
     date = datetime.datetime.fromtimestamp(int(reviewDict['date']))
-    reviewDict['date'] = date.strftime('%Y/%m/%d')
+    reviewDict['date'] = date
     return reviewDict
 
 # Prints Reviews for User
 def printReviews(reviews):
     for review in reviews:
-        reviewDict = parseReview(review)
-        for i in reviewDict:
-            print i + ":" + reviewDict[i]
-        print ''
+		print review
+		reviewDict = parseReview(review)
+		for i in reviewDict:
+			print i + ":" + reviewDict[i]
+		print ''
 
 main()
