@@ -19,7 +19,7 @@ class QueryData:
 		'rdate': [None, None]
 		}
 		# List of reviews
-		self.reviews = [1,2,3,4,5,6,7,8,9,10]
+		self.reviews = []
 
 	def date_update(self, oper, dateStr):
 		#Updates the rdate values.
@@ -106,38 +106,44 @@ def search(queryData):
 		pass
 	if queryData.termsR != []:
 		pass
-#	queryData = compare_rscore(queryData)
-	reviewHandler(queryData)
+	queryData = compare_rscore(queryData)
+#	reviewHandler(queryData)
 
 ## Start of query handlers
 # Query handlers should accept a command and
-"""
+
 def compare_rscore(queryData):
-	###database = db.DB()
-    #database.open("sc.idx")
+	database = db.DB()
+	database.open("sc.idx")
+	cur = database.cursor()
     #review = database.get(reviewNumber).decode("utf-8")
+	queryRange = queryData.ranges['rscore']
 	if queryRange != [None, None]:
 		if queryRange[0] == None:
 			value = cur.first()
+			end = queryRange[1]
 		elif queryRange[1] == None:
-			end = cur.last().decode("utf-8")
-			value = cur.range("b'"+str(queryRange[0]+0.1)+"'")
-		elif not((queryRange[0] < reviewData) and (queryRange[1] > reviewData)):
-			return False
-
+			end = float(cur.last()[1])
+			value = cur.set_range(str(queryRange[0]+0.1))
+		else:
+			value = cur.set_range(str(queryRange[0]+0.1))
+			end = queryRange[1]
 		while value:
-			print(value)
-			value = cur.next()
-	#database.close()
+			if float(value[0]) < end:
+				print(value[0])
+				value = cur.next()
+			else:
+				break
+	database.close()
 	return queryData
-"""
+
 def reviewHandler(queryData):
-	for r in queryData.reviews:
+	for r in range(1,1000):
 		review = parseReview(r)
 		dates = queryData.ranges['rdate']
 		prices = queryData.ranges['pprice']
-		scores = queryData.ranges['rscore']
-		if compareRange(dates, review['date']) and compareRange(prices, review['price']) and compareRange(scores, review['score']):
+	#	scores = queryData.ranges['rscore']
+		if compareRange(dates, review['date']) and compareRange(prices, review['price']):
 			printReview(review)
 
 def compareRange(queryRange, reviewData):
