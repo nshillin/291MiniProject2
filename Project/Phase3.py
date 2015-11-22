@@ -1,5 +1,6 @@
-#from bsddb3 import db
-from csv import reader
+from bsddb3 import db
+#from csv import reader
+from pyparsing import commaSeparatedList
 import datetime
 import re
 
@@ -18,7 +19,7 @@ class QueryData:
 		'rdate': [None, None]
 		}
 		# List of reviews
-		self.reviews = [1]
+		self.reviews = [1,2,3,4,5,6,7,8,9,10]
 
 	def date_update(self, oper, dateStr):
 		#Updates the rdate values.
@@ -140,6 +141,8 @@ def reviewHandler(queryData):
 			printReview(review)
 
 def compareRange(queryRange, reviewData):
+	if reviewData == None:
+		return False
 	if queryRange != [None, None]:
 		if queryRange[0] == None:
 			if not(queryRange[1] > reviewData):
@@ -155,24 +158,37 @@ def compareRange(queryRange, reviewData):
 
 # Turns Reviews into Dictionary
 def parseReview(reviewNumber):
-    #####database = db.DB()
-    #database.open("rw.idx")
-    #review = database.get(reviewNumber)[0].decode("utf-8")
-    #database.close()
-    #reviewItems = reader(review).next()
-	reviewItems = ["1","2","3","4","5","6","7","1182816100","9","10"]
+	database = db.DB()
+	database.open("rw.idx")
+	review = database.get(str(reviewNumber))
+	database.close()
+	reviewItems = commaSeparatedList.parseString(review).asList()
+	#reviewItems = ["1","2","3","4","5","6","7","1182816100","9","10"]
 	reviewDict = dict(zip(reviewsColumns, reviewItems))
 	date = datetime.datetime.fromtimestamp(int(reviewDict['date']))
 	reviewDict['date'] = date
-	reviewDict['price'] = float(reviewDict['price'])
+	try:
+		reviewDict['price'] = float(reviewDict['price'])
+	except ValueError:
+		pass
 	reviewDict['score'] = float(reviewDict['score'])
 	return reviewDict
 
 # Prints individual Review for User
 def printReview(review):
-	reviewDict = parseReview(review)
-	for i in reviewDict:
-		print i + ":" + str(reviewDict[i])
+	for i in reviewsColumns:
+		print i + ":" + str(review[i])
 	print ''
+
+def dbPrint():
+	database = db.DB()
+	database.open("rw.idx")
+	print database.get('1')
+	cur = database.cursor()
+	a = cur.first()
+	while a:
+		print(a[0])
+		a = cur.next()
+	database.close()
 
 main()
