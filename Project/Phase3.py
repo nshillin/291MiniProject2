@@ -22,6 +22,7 @@ class QueryData:
 		# List of reviews
 		self.reviews = []
 		self.reviewsAdded = False
+		self.printMode = 'r'
 
 	def date_update(self, oper, dateStr):
 		#Updates the rdate values.
@@ -58,11 +59,16 @@ class QueryData:
 		elif fieldStr == 'r:':
 			self.termsR.append(termStr)
 
+	def mode_update(self, mode):
+		self.printMode = mode
+
+
 
 def main():
 	#setupReviewList()
 	#setupReviews()
 	while True:
+		print ''
 		text = raw_input(':').lower()
 		if text.strip(' ') == "":
 			pass
@@ -77,13 +83,14 @@ def main():
 				search(queryData)
 
 def parseQuery(text):
-    regex_date = '^\s*rdate\s*([<>])\s*(\d{4}[/]\d{2}[/]\d{2})(\s+|\Z)'
-    regex_value = '^\s*(rscore|pprice)\s*([<>])\s*([-]?\d+([.]\d+)?)(\s+|\Z)'
-    regex_term = '^\s*([pr]:)?(\w+[%]?)(\s+|\Z)'
+	regex_date = '^\s*rdate\s*([<>])\s*(\d{4}[/]\d{2}[/]\d{2})(\s+|\Z)'
+	regex_value = '^\s*(rscore|pprice)\s*([<>])\s*([-]?\d+([.]\d+)?)(\s+|\Z)'
+	regex_term = '^\s*([pr]:)?(\w+[%]?)(\s+|\Z)'
+	regex_print_mode = '^\s*\-([ir])(\s+|\Z)'
 
-    data = QueryData()
+	data = QueryData()
 
-    while len(text) > 0:
+	while len(text) > 0:
 		matcher = re.search(regex_date, text)
 		if matcher is not None:
 			data.date_update(matcher.group(1), matcher.group(2))
@@ -99,8 +106,13 @@ def parseQuery(text):
 			data.term_update(matcher.group(1),matcher.group(2))
 			text = re.sub(regex_term, '', text)
 			continue
+		matcher = re.search(regex_print_mode, text)
+		if matcher is not None:
+			data.mode_update(matcher.group(1))
+			text = re.sub(regex_print_mode, '', text)
+			continue
 		return None
-    return data
+	return data
 
 
 def search(queryData):
@@ -153,7 +165,7 @@ def reviewHandler(queryData):
 		dates = queryData.ranges['rdate']
 		prices = queryData.ranges['pprice']
 		if compareRange(dates, review['date']) and compareRange(prices, review['price']):
-			printReview(r,review)
+			printReview(r,review,queryData.printMode)
 
 def compareRange(queryRange, reviewData):
 	if queryRange != [None, None]:
@@ -190,12 +202,14 @@ def parseReview(reviewNumber):
 
 
 # Prints individual Review for User
-def printReview(number,review):
-	#for testing
-	#print number
-	for i in reviewsColumns:
-		print i + ":" + str(review[i])
-	print '' """
+def printReview(number,review,printMode):
+	if printMode == 'r':
+		for i in reviewsColumns:
+			print i + ":" + str(review[i])
+		print ''
+	elif printMode == 'i':
+		print number,
+
 
 def dbPrint():
 	database = db.DB()
