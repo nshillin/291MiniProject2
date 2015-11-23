@@ -5,7 +5,7 @@ import datetime
 import re
 
 reviewsColumns = ["productId","title","price","userId","profileName","helpfulness","score","date","summary","text"]
-reviewList = []
+#allReviews = {}
 
 class QueryData:
 	def __init__(self):
@@ -21,6 +21,7 @@ class QueryData:
 		}
 		# List of reviews
 		self.reviews = []
+		self.reviewsAdded = False
 
 	def date_update(self, oper, dateStr):
 		#Updates the rdate values.
@@ -59,7 +60,8 @@ class QueryData:
 
 
 def main():
-	setupReviewList()
+	#setupReviewList()
+	#setupReviews()
 	while True:
 		text = raw_input(':').lower()
 		if text.strip(' ') == "":
@@ -73,16 +75,6 @@ def main():
 			else:
 				#TODO: Put search stuff here
 				search(queryData)
-
-def setupReviewList():
-	database = db.DB()
-	database.open("rw.idx")
-	cur = database.cursor()
-	beginning = int(cur.first()[0])
-	end = int(cur.last()[0])
-	database.close()
-	for i in range(beginning,end):
-		reviewList.append(i)
 
 def parseQuery(text):
     regex_date = '^\s*rdate\s*([<>])\s*(\d{4}[/]\d{2}[/]\d{2})(\s+|\Z)'
@@ -112,7 +104,6 @@ def parseQuery(text):
 
 
 def search(queryData):
-	queryData.reviews = reviewList
 	if queryData.terms != []:
 		pass
 	if queryData.termsP != []:
@@ -148,7 +139,11 @@ def compare_rscore(queryData):
 				value = cur.next()
 			else:
 				break
-		queryData.reviews = list(set(queryData.reviews).intersection(rscoreList))
+		if queryData.reviewsAdded:
+			queryData.reviews = list(set(queryData.reviews).intersection(rscoreList))
+		else:
+			queryData.reviews = sorted(rscoreList)
+			queryData.reviewsAdded = True
 	database.close()
 	return queryData
 
@@ -157,13 +152,10 @@ def reviewHandler(queryData):
 		review = parseReview(r)
 		dates = queryData.ranges['rdate']
 		prices = queryData.ranges['pprice']
-	#	scores = queryData.ranges['rscore']
 		if compareRange(dates, review['date']) and compareRange(prices, review['price']):
-			printReview(review)
+			printReview(r,review)
 
 def compareRange(queryRange, reviewData):
-	if reviewData == None:
-		return False
 	if queryRange != [None, None]:
 		if queryRange[0] == None:
 			if not(queryRange[1] > reviewData):
@@ -178,6 +170,7 @@ def compareRange(queryRange, reviewData):
 # End of query handlers
 
 # Turns Reviews into Dictionary
+
 def parseReview(reviewNumber):
 	database = db.DB()
 	database.open("rw.idx")
@@ -195,11 +188,14 @@ def parseReview(reviewNumber):
 	reviewDict['score'] = float(reviewDict['score'])
 	return reviewDict
 
+
 # Prints individual Review for User
-def printReview(review):
+def printReview(number,review):
+	#for testing
+	#print number
 	for i in reviewsColumns:
 		print i + ":" + str(review[i])
-	print ''
+	print '' """
 
 def dbPrint():
 	database = db.DB()
