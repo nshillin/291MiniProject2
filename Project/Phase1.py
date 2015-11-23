@@ -1,41 +1,43 @@
 import sys
 import re
+import multiprocessing
 
 def main():
+	print "Phase 1 Started"
 	try:
 		fileName = str(sys.argv[1])
-	except Exception as e:
-		print ("No file specified.")
+	except Exception, e:
+		print "No file specified."
 		return
-	# Creates Empty Files
-	f = open('reviews.txt', 'w')
-	f.close()
-	f = open('pterms.txt', 'w')
-	f.close()
-	f = open('rterms.txt', 'w')
-	f.close()
-	f = open('scores.txt', 'w')
-	f.close()
-	getReviews(fileName)
+	fileArray = readFile(fileName)
+	getReviews(fileArray)
+	print "Phase 1 Finished"
 
-def getReviews(fileName):
+
+def readFile(fileName):
+	with open(fileName, "r") as f:
+		fileString = f.read()
+		fileArray = fileString.replace('"','&quot;').replace('\\','\\\\').splitlines()
+	return fileArray
+
+def getReviews(fileArray):
 	k_requiresQuotes = ['product/title','review/profileName','review/summary','review/text']
+	reviewsArray = []
+	pTermsArray = []
+	rTermsArray = []
+	scoresArray = []
 	review = ""
 	reviewNumber = 1
-	f = open(fileName, "r")
-	for line in f:
-		line = line.rstrip('\n')
-		line = line.replace('"','&quot;')
-		line = line.replace('\\','\\\\')
+	for line in fileArray:
 		if ": " in line:
 			splitLine = line.split(": ",1)
 
 			if splitLine[0] == 'product/title':
-				newPTerms(splitLine[1],reviewNumber)
+				pTermsArray = newTerms(splitLine[1],reviewNumber,pTermsArray)
 			elif splitLine[0] == 'review/summary' or splitLine[0] == 'review/text':
-				newRTerms(splitLine[1],reviewNumber)
+				rTermsArray = newTerms(splitLine[1],reviewNumber,rTermsArray)
 			elif splitLine[0] == 'review/score':
-				newScore(splitLine[1],reviewNumber)
+				scoresArray = newScore(splitLine[1],reviewNumber,scoresArray)
 
 			if splitLine[0] in k_requiresQuotes:
 				splitLine[1] = '"%s"' % splitLine[1]
@@ -43,35 +45,49 @@ def getReviews(fileName):
 			if splitLine[0] == 'review/text':
 				review += ',' + splitLine[1]
 				review = str(reviewNumber) + review
-				newReview(review)
+				reviewsArray.append(review)
 				reviewNumber += 1
 				review = ""
 			else:
 				review += ',' + splitLine[1]
 		else:
 			continue
-	f.close()
 
-def newReview(review):
-	with open('reviews.txt', 'a') as f:
-		f.write(review + '\n')
+	p1 = multiprocessing.Process(target=writeFile, args=('reviews.txt',reviewsArray))
+	p1.start()
+	#writeFile('reviews.txt',reviewsArray)
+	p2 = multiprocessing.Process(target=writeFile, args=('pterms.txt',pTermsArray))
+	p2.start()
+	#writeFile('pterms.txt',pTermsArray)
+	p3 = multiprocessing.Process(target=writeFile, args=('rterms.txt',rTermsArray))
+	p3.start()
+	#writeFile('rterms.txt',rTermsArray)
+	p4 = multiprocessing.Process(target=writeFile, args=('scores.txt',scoresArray))
+	p4.start()
+	p1.join()
+	p2.join()
+	p3.join()
+	p4.join()
+	#writeFile('scores.txt',scoresArray)
 
-def newPTerms(title,reviewNumber):
-	with open('pterms.txt', 'a') as f:
-		wordList = re.split('\W',title)
-		for word in wordList:
-			if word != '' and len(word) >= 3:
-				f.write(word.lower() + ',' + str(reviewNumber) + '\n')
 
-def newRTerms(review,reviewNumber):
-	with open('rterms.txt', 'a') as f:
-		wordList = re.split('\W',review)
-		for word in wordList:
-			if word != '' and len(word) >= 3:
-				f.write(word.lower() + ',' + str(reviewNumber) + '\n')
+def writeFile(filename, objects):
+	print "writing ",filename
+	with open(filename, 'w') as f:
+		for i in objects:
+			f.write(i + '\n')
+	print "Finished writing ",filename
 
-def newScore(score,reviewNumber):
-	with open('scores.txt', 'a') as f:
-		f.write(score + ',' + str(reviewNumber) + '\n')
+
+def newTerms(review,reviewNumber,array):
+	wordList = re.split('\W+',review)
+	for word in wordList:
+		if word != '' and len(word) >= 3:
+			array.append(word.lower() + ',' + str(reviewNumber))
+	return array
+
+def newScore(score,reviewNumber,array):
+	array.append(score + ',' + str(reviewNumber))
+	return array
 
 main()
