@@ -1,9 +1,11 @@
-#from bsddb3 import db
-from csv import reader
+from bsddb3 import db
+#from csv import reader
+from pyparsing import commaSeparatedList
 import datetime
 import re
 
 reviewsColumns = ["productId","title","price","userId","profileName","helpfulness","score","date","summary","text"]
+reviewList = []
 
 class QueryData:
 	def __init__(self):
@@ -18,7 +20,7 @@ class QueryData:
 		'rdate': [None, None]
 		}
 		# List of reviews
-		self.reviews = [1]
+		self.reviews = []
 
 	def date_update(self, oper, dateStr):
 		#Updates the rdate values.
@@ -55,7 +57,9 @@ class QueryData:
 		elif fieldStr == 'r:':
 			self.termsR.append(termStr)
 
+
 def main():
+	setupReviewList()
 	while True:
 		text = raw_input(':').lower()
 		if text.strip(' ') == "":
@@ -70,6 +74,15 @@ def main():
 				#TODO: Put search stuff here
 				search(queryData)
 
+def setupReviewList():
+	database = db.DB()
+	database.open("rw.idx")
+	cur = database.cursor()
+	beginning = int(cur.first()[0])
+	end = int(cur.last()[0])
+	database.close()
+	for i in range(beginning,end):
+		reviewList.append(i)
 
 def parseQuery(text):
     regex_date = '^\s*rdate\s*([<>])\s*(\d{4}[/]\d{2}[/]\d{2})(\s+|\Z)'
@@ -99,47 +112,58 @@ def parseQuery(text):
 
 
 def search(queryData):
+	queryData.reviews = reviewList
 	if queryData.terms != []:
 		pass
 	if queryData.termsP != []:
 		pass
 	if queryData.termsR != []:
 		pass
-#	queryData = compare_rscore(queryData)
+	queryData = compare_rscore(queryData)
 	reviewHandler(queryData)
 
 ## Start of query handlers
 # Query handlers should accept a command and
-"""
+
 def compare_rscore(queryData):
-	###database = db.DB()
-    #database.open("sc.idx")
+	database = db.DB()
+	database.open("sc.idx")
+	cur = database.cursor()
     #review = database.get(reviewNumber).decode("utf-8")
+	rscoreList = []
+	queryRange = queryData.ranges['rscore']
 	if queryRange != [None, None]:
 		if queryRange[0] == None:
 			value = cur.first()
+			end = queryRange[1]
 		elif queryRange[1] == None:
-			end = cur.last().decode("utf-8")
-			value = cur.range("b'"+str(queryRange[0]+0.1)+"'")
-		elif not((queryRange[0] < reviewData) and (queryRange[1] > reviewData)):
-			return False
-
+			end = float(cur.last()[1])
+			value = cur.set_range(str(queryRange[0]+0.1))
+		else:
+			value = cur.set_range(str(queryRange[0]+0.1))
+			end = queryRange[1]
 		while value:
-			print(value)
-			value = cur.next()
-	#database.close()
+			if float(value[0]) < end:
+				rscoreList.append(int(value[1]))
+				value = cur.next()
+			else:
+				break
+		queryData.reviews = list(set(queryData.reviews).intersection(rscoreList))
+	database.close()
 	return queryData
-"""
+
 def reviewHandler(queryData):
 	for r in queryData.reviews:
 		review = parseReview(r)
 		dates = queryData.ranges['rdate']
 		prices = queryData.ranges['pprice']
-		scores = queryData.ranges['rscore']
-		if compareRange(dates, review['date']) and compareRange(prices, review['price']) and compareRange(scores, review['score']):
+	#	scores = queryData.ranges['rscore']
+		if compareRange(dates, review['date']) and compareRange(prices, review['price']):
 			printReview(review)
 
 def compareRange(queryRange, reviewData):
+	if reviewData == None:
+		return False
 	if queryRange != [None, None]:
 		if queryRange[0] == None:
 			if not(queryRange[1] > reviewData):
@@ -155,24 +179,37 @@ def compareRange(queryRange, reviewData):
 
 # Turns Reviews into Dictionary
 def parseReview(reviewNumber):
-    #####database = db.DB()
-    #database.open("rw.idx")
-    #review = database.get(reviewNumber)[0].decode("utf-8")
-    #database.close()
-    #reviewItems = reader(review).next()
-	reviewItems = ["1","2","3","4","5","6","7","1182816100","9","10"]
+	database = db.DB()
+	database.open("rw.idx")
+	review = database.get(str(reviewNumber))
+	database.close()
+	reviewItems = commaSeparatedList.parseString(review).asList()
+	#reviewItems = ["1","2","3","4","5","6","7","1182816100","9","10"]
 	reviewDict = dict(zip(reviewsColumns, reviewItems))
 	date = datetime.datetime.fromtimestamp(int(reviewDict['date']))
 	reviewDict['date'] = date
-	reviewDict['price'] = float(reviewDict['price'])
+	try:
+		reviewDict['price'] = float(reviewDict['price'])
+	except ValueError:
+		pass
 	reviewDict['score'] = float(reviewDict['score'])
 	return reviewDict
 
 # Prints individual Review for User
 def printReview(review):
-	reviewDict = parseReview(review)
-	for i in reviewDict:
-		print i + ":" + str(reviewDict[i])
+	for i in reviewsColumns:
+		print i + ":" + str(review[i])
 	print ''
+
+def dbPrint():
+	database = db.DB()
+	database.open("rw.idx")
+	print database.get('1')
+	cur = database.cursor()
+	a = cur.first()
+	while a:
+		print(a[0])
+		a = cur.next()
+	database.close()
 
 main()
