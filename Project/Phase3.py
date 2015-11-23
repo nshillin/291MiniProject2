@@ -86,7 +86,7 @@ def parseQuery(text):
 	regex_date = '^\s*rdate\s*([<>])\s*(\d{4}[/]\d{2}[/]\d{2})(\s+|\Z)'
 	regex_value = '^\s*(rscore|pprice)\s*([<>])\s*([-]?\d+([.]\d+)?)(\s+|\Z)'
 	regex_term = '^\s*([pr]:)?(\w+[%]?)(\s+|\Z)'
-	regex_print_mode = '^\s*\-([ir])(\s+|\Z)'
+	regex_print_mode = '^\s*\-(i|r|is)(\s+|\Z)'
 
 	data = QueryData()
 
@@ -160,6 +160,7 @@ def compare_rscore(queryData):
 	return queryData
 
 def reviewHandler(queryData):
+	print "Reviews matching your query:"
 	for r in queryData.reviews:
 		review = parseReview(r)
 		dates = queryData.ranges['rdate']
@@ -169,6 +170,8 @@ def reviewHandler(queryData):
 
 def compareRange(queryRange, reviewData):
 	if queryRange != [None, None]:
+		if reviewData == 'unknown':
+			return False
 		if queryRange[0] == None:
 			if not(queryRange[1] > reviewData):
 				return False
@@ -182,7 +185,6 @@ def compareRange(queryRange, reviewData):
 # End of query handlers
 
 # Turns Reviews into Dictionary
-
 def parseReview(reviewNumber):
 	database = db.DB()
 	database.open("rw.idx")
@@ -207,10 +209,12 @@ def printReview(number,review,printMode):
 		for i in reviewsColumns:
 			print i + ":" + str(review[i])
 		print ''
+	elif printMode == 'is':
+		print "'"+str(number)+"',",
 	elif printMode == 'i':
 		print number,
 
-
+# For testing, cycles through all reviews
 def dbPrint():
 	database = db.DB()
 	database.open("rw.idx")
