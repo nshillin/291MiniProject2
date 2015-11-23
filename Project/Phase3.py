@@ -5,6 +5,7 @@ import datetime
 import re
 
 reviewsColumns = ["productId","title","price","userId","profileName","helpfulness","score","date","summary","text"]
+reviewList = []
 
 class QueryData:
 	def __init__(self):
@@ -56,7 +57,9 @@ class QueryData:
 		elif fieldStr == 'r:':
 			self.termsR.append(termStr)
 
+
 def main():
+	setupReviewList()
 	while True:
 		text = raw_input(':').lower()
 		if text.strip(' ') == "":
@@ -71,6 +74,15 @@ def main():
 				#TODO: Put search stuff here
 				search(queryData)
 
+def setupReviewList():
+	database = db.DB()
+	database.open("rw.idx")
+	cur = database.cursor()
+	beginning = int(cur.first()[0])
+	end = int(cur.last()[0])
+	database.close()
+	for i in range(beginning,end):
+		reviewList.append(i)
 
 def parseQuery(text):
     regex_date = '^\s*rdate\s*([<>])\s*(\d{4}[/]\d{2}[/]\d{2})(\s+|\Z)'
@@ -100,6 +112,7 @@ def parseQuery(text):
 
 
 def search(queryData):
+	queryData.reviews = reviewList
 	if queryData.terms != []:
 		pass
 	if queryData.termsP != []:
@@ -107,7 +120,7 @@ def search(queryData):
 	if queryData.termsR != []:
 		pass
 	queryData = compare_rscore(queryData)
-#	reviewHandler(queryData)
+	reviewHandler(queryData)
 
 ## Start of query handlers
 # Query handlers should accept a command and
@@ -117,6 +130,7 @@ def compare_rscore(queryData):
 	database.open("sc.idx")
 	cur = database.cursor()
     #review = database.get(reviewNumber).decode("utf-8")
+	rscoreList = []
 	queryRange = queryData.ranges['rscore']
 	if queryRange != [None, None]:
 		if queryRange[0] == None:
@@ -130,15 +144,16 @@ def compare_rscore(queryData):
 			end = queryRange[1]
 		while value:
 			if float(value[0]) < end:
-				print(value[0])
+				rscoreList.append(int(value[1]))
 				value = cur.next()
 			else:
 				break
+		queryData.reviews = list(set(queryData.reviews).intersection(rscoreList))
 	database.close()
 	return queryData
 
 def reviewHandler(queryData):
-	for r in range(1,1000):
+	for r in queryData.reviews:
 		review = parseReview(r)
 		dates = queryData.ranges['rdate']
 		prices = queryData.ranges['pprice']
