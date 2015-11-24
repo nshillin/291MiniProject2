@@ -62,6 +62,12 @@ class QueryData:
 	def mode_update(self, mode):
 		self.printMode = mode
 
+	def intersectReviews(self, newList):
+		if self.reviewsAdded:
+			self.reviews = list(set(self.reviews).intersection(newList))
+		else:
+			self.reviews = list(set(newList))
+			self.reviewsAdded = True
 
 
 def main():
@@ -151,13 +157,26 @@ def compare_rscore(queryData):
 				value = cur.next()
 			else:
 				break
-		if queryData.reviewsAdded:
-			queryData.reviews = list(set(queryData.reviews).intersection(rscoreList))
-		else:
-			queryData.reviews = sorted(rscoreList)
-			queryData.reviewsAdded = True
+
+		queryData.intersectReviews(rscoreList)
 	database.close()
 	return queryData
+
+def compare_terms(queryData):
+	if len(queryData.termsP) > 0:
+		matchesP = idxTermSearch("pt.idx", queryData.termsP)
+	if len(queryData.termsR) > 0:
+		matchesR = idxTermSearch("rt.idx", queryData.termsR)
+	if len(queryData.terms) > 0:
+		matches = list(set(idxTermSearch("pt.idx", queryData.terms)).union(set(idxTermSearch("rt.idx", queryData.terms))))
+	return
+
+def idxTermSearch(idxName):
+	database = db.DB()
+	database.open(idxName)
+	cur = database.cursor
+	database.close()
+	return None
 
 def reviewHandler(queryData):
 	print "Reviews matching your query:"
