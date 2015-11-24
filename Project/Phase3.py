@@ -64,7 +64,7 @@ class QueryData:
 
 	def intersectReviews(self, newList):
 		if self.reviewsAdded:
-			self.reviews = list(set(self.reviews).intersection(newList))
+			self.reviews = list(set(self.reviews).intersection(set(newList)))
 		else:
 			self.reviews = list(set(newList))
 			self.reviewsAdded = True
