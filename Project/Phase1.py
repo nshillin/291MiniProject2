@@ -13,13 +13,17 @@ def main():
 	getReviews(fileArray)
 	print "Phase 1 Finished"
 
-
+# Reads in the file, returns it as a an array of strings
 def readFile(fileName):
+	print "Reading", fileName
 	with open(fileName, "r") as f:
 		fileString = f.read()
 		fileArray = fileString.replace('"','&quot;').replace('\\','\\\\').splitlines()
+	print "Finished reading", fileName
 	return fileArray
 
+# Goes through the array of lines and breaks it up into the different file arrays
+# Such as reviewsArray and pTermsArray
 def getReviews(fileArray):
 	k_requiresQuotes = ['product/title','review/profileName','review/summary','review/text']
 	reviewsArray = []
@@ -28,6 +32,7 @@ def getReviews(fileArray):
 	scoresArray = []
 	review = ""
 	reviewNumber = 1
+	print "Processing file..."
 	for line in fileArray:
 		if ": " in line:
 			splitLine = line.split(": ",1)
@@ -53,6 +58,8 @@ def getReviews(fileArray):
 		else:
 			continue
 
+	print "Finished processing file"
+	# Breaks up files into different processes
 	p1 = multiprocessing.Process(target=writeFile, args=('reviews.txt',reviewsArray))
 	p1.start()
 	#writeFile('reviews.txt',reviewsArray)
@@ -70,15 +77,15 @@ def getReviews(fileArray):
 	p4.join()
 	#writeFile('scores.txt',scoresArray)
 
-
+# Writes the files out to
 def writeFile(filename, objects):
-	print "writing ",filename
+	print "Writing",filename
 	with open(filename, 'w') as f:
 		for i in objects:
 			f.write(i + '\n')
-	print "Finished writing ",filename
+	print "Finished writing",filename
 
-
+# Adds all new terms to the newTerms array
 def newTerms(review,reviewNumber,array):
 	wordList = re.split('\W+',review)
 	for word in wordList:
@@ -86,6 +93,7 @@ def newTerms(review,reviewNumber,array):
 			array.append(word.lower() + ',' + str(reviewNumber))
 	return array
 
+# Adds new scores to the scoresArray
 def newScore(score,reviewNumber,array):
 	array.append(score + ',' + str(reviewNumber))
 	return array

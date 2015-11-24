@@ -5,8 +5,8 @@ import datetime
 import re
 
 reviewsColumns = ["productId","title","price","userId","profileName","helpfulness","score","date","summary","text"]
-#allReviews = {}
 
+# Stores all of the data about a query
 class QueryData:
 	def __init__(self):
 		#Terms to be checked
@@ -89,6 +89,7 @@ def main():
 				#TODO: Put search stuff here
 				search(queryData)
 
+# Passes the user's query into the QueryData class
 def parseQuery(text):
 	regex_date = '^\s*rdate\s*([<>])\s*(\d{4}[/]\d{2}[/]\d{2})(\s+|\Z)'
 	regex_value = '^\s*(rscore|pprice)\s*([<>])\s*([-]?\d+([.]\d+)?)(\s+|\Z)'
@@ -122,22 +123,22 @@ def parseQuery(text):
 	return data
 
 
+# Runs the functions to search through the database
 def search(queryData):
 	queryData = compare_terms(queryData)
 	queryData = compare_rscore(queryData)
 	reviewHandler(queryData)
 
-## Start of query handlers
-# Query handlers should accept a command and
+## Start of search handlers
 
+# Scans for scores within the user's given range
 def compare_rscore(queryData):
-	database = db.DB()
-	database.open("sc.idx")
-	cur = database.cursor()
-    #review = database.get(reviewNumber).decode("utf-8")
-	rscoreList = []
 	queryRange = queryData.ranges['rscore']
 	if queryRange != [None, None]:
+		database = db.DB()
+		database.open("sc.idx")
+		cur = database.cursor()
+		rscoreList = []
 		if queryRange[0] == None:
 			value = cur.first()
 			end = queryRange[1]
@@ -155,9 +156,10 @@ def compare_rscore(queryData):
 				break
 
 		queryData.intersectReviews(rscoreList)
-	database.close()
+		database.close()
 	return queryData
 
+# Handles all of the term searching
 def compare_terms(queryData):
 	if len(queryData.termsP) > 0:
 		matchesP = idxTermSearch("pt.idx", queryData.termsP)
@@ -170,6 +172,7 @@ def compare_terms(queryData):
 		queryData.intersectReviews(matches)
 	return queryData
 
+# Searches the database for the given terms
 def idxTermSearch(idxName, termsList):
 	firstPass = True
 	resultsList = []
@@ -205,6 +208,9 @@ def idxTermSearch(idxName, termsList):
 	database.close()
 	return resultsList
 
+# Handles all of the reviews that have made it past the other functions,
+# compares them against the user's price and date range,
+# and prints them if they have succeeded
 def reviewHandler(queryData):
 	print "Reviews matching your query:"
 	reviewCount = 0
@@ -218,6 +224,7 @@ def reviewHandler(queryData):
 	print ''
 	print "Number of reviews:",reviewCount
 
+# Compares ranges of information
 def compareRange(queryRange, reviewData):
 	if queryRange != [None, None]:
 		if reviewData == 'unknown':
@@ -232,9 +239,9 @@ def compareRange(queryRange, reviewData):
 			return False
 	return True
 
-# End of query handlers
+## End of search handlers
 
-# Turns Reviews into Dictionary
+# Turns individual reviews into a dictionary
 def parseReview(reviewNumber):
 	database = db.DB()
 	database.open("rw.idx")
@@ -263,17 +270,5 @@ def printReview(number,review,printMode):
 		print "'"+str(number)+"',",
 	elif printMode == 'i':
 		print number,
-
-# For testing, cycles through all reviews
-def dbPrint():
-	database = db.DB()
-	database.open("rw.idx")
-	print database.get('1')
-	cur = database.cursor()
-	a = cur.first()
-	while a:
-		print(a[0])
-		a = cur.next()
-	database.close()
 
 main()
