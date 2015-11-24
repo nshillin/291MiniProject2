@@ -73,6 +73,7 @@ class QueryData:
 def main():
 	#setupReviewList()
 	#setupReviews()
+        print("Please enter your queries to begin. Type 'exit' to quit.")
 	while True:
 		print ''
 		text = raw_input(':').lower()

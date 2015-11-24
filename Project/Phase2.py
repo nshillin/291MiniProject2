@@ -24,6 +24,7 @@ def createDatabase(btree, filename):
     else :
         createHashDatabase(filename)
 
+
 def createBTreeDatabase(filename):
     if filename == "pterms.txt":
         createIndex2(filename)
@@ -32,7 +33,8 @@ def createBTreeDatabase(filename):
     elif filename == "scores.txt":
         createIndex4(filename)
     return
-    
+
+#creates a bTree style database to store pterms.txt    
 def createIndex2(filename):
     try:
         database = db.DB()
@@ -47,6 +49,7 @@ def createIndex2(filename):
             database.put(line[:splitPoint], line[splitPoint + 1:-1])
     #iterateDatabaseForTesting(database, "pt.idx")    
 
+#creates a bTree style database for rterms.txt
 def createIndex3(filename):
     try:
         database = db.DB()
@@ -57,10 +60,9 @@ def createIndex3(filename):
     with open(filename, "r") as contents:
         for line in contents:
             splitPoint = line.find(",")
-            #print(line[:splitPoint] + "    value    "+ line[splitPoint + 1:-1])
-            database.put(line[:splitPoint], line[splitPoint + 1:-1])
-    #iterateDatabaseForTesting(database, "rt.idx")    
+            database.put(line[:splitPoint], line[splitPoint + 1:-1])  
 
+#creates a bTree style database for scores.txt
 def createIndex4(filename):
     try:
         database = db.DB()
@@ -71,10 +73,9 @@ def createIndex4(filename):
     with open(filename, "r") as contents:
         for line in contents:
             splitPoint = line.find(",")
-            #print(line[:splitPoint] + "    value    "+ line[splitPoint + 1:-1])
             database.put(line[:splitPoint], line[splitPoint + 1:-1])
-    #iterateDatabaseForTesting(database, "sc.idx")    
-    
+
+#creates a hash style database for review.txt   
 def createHashDatabase(filename):
     try:
         database = db.DB()
