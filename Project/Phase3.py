@@ -165,18 +165,49 @@ def compare_rscore(queryData):
 def compare_terms(queryData):
 	if len(queryData.termsP) > 0:
 		matchesP = idxTermSearch("pt.idx", queryData.termsP)
+		queryData.intersectReviews(matchesP)
 	if len(queryData.termsR) > 0:
 		matchesR = idxTermSearch("rt.idx", queryData.termsR)
+		queryData.intersectReviews(matchesR)
 	if len(queryData.terms) > 0:
 		matches = list(set(idxTermSearch("pt.idx", queryData.terms)).union(set(idxTermSearch("rt.idx", queryData.terms))))
+		queryData.intersectReviews(matches)
 	return
 
-def idxTermSearch(idxName):
+def idxTermSearch(idxName, termsList):
+	firstPass = True
+	resultsList = []
+
 	database = db.DB()
 	database.open(idxName)
+
 	cur = database.cursor
+	for term in termsList:
+		termResults = []
+		if term[-1] == '%':
+			value = cur.set_range(term[:-1])
+			while value:
+				if value[0][:len(term)-1] == term[:-1]:
+					termResults.append(int(value[1]))
+					value = cur.next()
+				else:
+					break
+		else:
+			value = cur.set_range(term)
+			while value:
+				if value[0] == term:
+					termResults.append(int(value[1]))
+					value = cur.next()
+				else:
+					break
+		if firstPass:
+			resultsList = list(set(termResults))
+		else:
+			resultsList = list(set(resultsList).intersect(set(termResults)))
+			firstPass = False
+
 	database.close()
-	return None
+	return resultsList
 
 def reviewHandler(queryData):
 	print "Reviews matching your query:"
