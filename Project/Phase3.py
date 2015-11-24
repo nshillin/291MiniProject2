@@ -122,12 +122,7 @@ def parseQuery(text):
 
 
 def search(queryData):
-	if queryData.terms != []:
-		pass
-	if queryData.termsP != []:
-		pass
-	if queryData.termsR != []:
-		pass
+	queryData = compare_terms(queryData)
 	queryData = compare_rscore(queryData)
 	reviewHandler(queryData)
 
@@ -172,7 +167,7 @@ def compare_terms(queryData):
 	if len(queryData.terms) > 0:
 		matches = list(set(idxTermSearch("pt.idx", queryData.terms)).union(set(idxTermSearch("rt.idx", queryData.terms))))
 		queryData.intersectReviews(matches)
-	return
+	return queryData
 
 def idxTermSearch(idxName, termsList):
 	firstPass = True
@@ -181,7 +176,7 @@ def idxTermSearch(idxName, termsList):
 	database = db.DB()
 	database.open(idxName)
 
-	cur = database.cursor
+	cur = database.cursor()
 	for term in termsList:
 		termResults = []
 		if term[-1] == '%':
