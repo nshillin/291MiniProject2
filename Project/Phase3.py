@@ -206,12 +206,16 @@ def idxTermSearch(idxName, termsList):
 
 def reviewHandler(queryData):
 	print "Reviews matching your query:"
+	reviewCount = 0
 	for r in queryData.reviews:
 		review = parseReview(r)
 		dates = queryData.ranges['rdate']
 		prices = queryData.ranges['pprice']
 		if compareRange(dates, review['date']) and compareRange(prices, review['price']):
 			printReview(r,review,queryData.printMode)
+			reviewCount+=1
+	print ''
+	print "Number of reviews:",reviewCount
 
 def compareRange(queryRange, reviewData):
 	if queryRange != [None, None]:
