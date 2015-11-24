@@ -201,10 +201,9 @@ def idxTermSearch(idxName, termsList):
 					break
 		if firstPass:
 			resultsList = list(set(termResults))
-		else:
-			resultsList = list(set(resultsList).intersect(set(termResults)))
 			firstPass = False
-
+		else:
+			resultsList = list(set(resultsList).intersection(set(termResults)))
 	database.close()
 	return resultsList
 
